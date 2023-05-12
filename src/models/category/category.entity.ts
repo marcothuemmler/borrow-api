@@ -35,6 +35,7 @@ export class Category {
   group: Group;
 
   @OneToMany(() => Item, (item) => item.category)
+  @ApiProperty({ type: () => Item, isArray: true, default: [] })
   items: Item[];
 
   @TreeParent()
@@ -42,6 +43,6 @@ export class Category {
   parent: Category;
 
   @TreeChildren()
-  @ApiProperty({ type: () => Category })
+  @ApiProperty({ type: () => Category, isArray: true, default: [] })
   children: Category[];
 }

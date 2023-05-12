@@ -33,15 +33,15 @@ export class Group {
   description: string;
 
   @ManyToMany(() => User)
-  @ApiProperty({ type: () => User })
+  @ApiProperty({ type: () => User, isArray: true, default: [] })
   @JoinTable()
   users: User[];
 
   @OneToMany(() => Category, (category) => category.group)
-  @ApiProperty({ type: () => Category })
+  @ApiProperty({ type: () => Category, isArray: true, default: [] })
   categories: Category[];
 
   @OneToMany(() => Item, (item) => item.group)
-  @ApiProperty({ type: () => Item })
+  @ApiProperty({ type: () => Item, isArray: true, default: [] })
   items: Item[];
 }

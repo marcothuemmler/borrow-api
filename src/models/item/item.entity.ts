@@ -34,8 +34,10 @@ export class Item {
   category: Category;
 
   @ManyToOne(() => Group, (group) => group.items)
+  @ApiProperty({ type: () => Group })
   group: Group;
 
   @ManyToOne(() => User, (owner) => owner.items)
+  @ApiProperty({ type: () => User })
   owner: User;
 }

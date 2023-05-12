@@ -31,10 +31,10 @@ export class User {
   email: string;
 
   @ManyToMany(() => Group)
-  @ApiProperty({ type: () => Group })
+  @ApiProperty({ type: () => Group, isArray: true, default: [] })
   groups: Group[];
 
   @OneToMany(() => Item, (item) => item.owner)
-  @ApiProperty({ type: Item })
+  @ApiProperty({ type: Item, isArray: true, default: [] })
   items: Item[];
 }
