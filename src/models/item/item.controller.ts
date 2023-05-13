@@ -11,6 +11,7 @@ import {
 import { ItemService } from './item.service';
 import { Item } from './item.entity';
 import { ApiTags } from '@nestjs/swagger';
+import { CreateItemDto } from './dto/createItem.dto';
 
 @Controller('item')
 @ApiTags('Item')
@@ -25,7 +26,7 @@ export class ItemController {
 
   //create item
   @Post()
-  async create(@Body() item: Item): Promise<Item> {
+  async create(@Body() item: CreateItemDto): Promise<Item> {
     return this.itemService.create(item);
   }
 

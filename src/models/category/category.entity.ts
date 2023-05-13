@@ -11,7 +11,6 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { Group } from '../group/group.entity';
-import { ApiProperty } from '@nestjs/swagger';
 import { Item } from '../item/item.entity';
 
 @Tree('materialized-path')
@@ -27,22 +26,17 @@ export class Category {
   updated_at: Date;
 
   @Column()
-  @ApiProperty({ type: String })
   name: string;
 
   @ManyToOne(() => Group, (group: Group) => group.categories)
-  @ApiProperty({ type: () => Group })
   group: Group;
 
   @OneToMany(() => Item, (item) => item.category)
-  @ApiProperty({ type: () => Item, isArray: true, default: [] })
   items: Item[];
 
   @TreeParent()
-  @ApiProperty({ type: () => Category })
   parent: Category;
 
   @TreeChildren()
-  @ApiProperty({ type: () => Category, isArray: true, default: [] })
   children: Category[];
 }

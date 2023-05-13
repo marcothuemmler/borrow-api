@@ -11,6 +11,7 @@ import {
 import { GroupService } from './group.service';
 import { Group } from './group.entity';
 import { ApiTags } from '@nestjs/swagger';
+import { CreateGroupDto } from './dto/createGroup.dto';
 
 @Controller('group')
 @ApiTags('Group')
@@ -25,7 +26,7 @@ export class GroupController {
 
   //create group
   @Post()
-  async create(@Body() group: Group): Promise<Group> {
+  async create(@Body() group: CreateGroupDto): Promise<Group> {
     return this.groupService.create(group);
   }
 

@@ -7,7 +7,6 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { User } from '../user/user.entity';
-import { ApiProperty } from '@nestjs/swagger';
 import { Category } from '../category/category.entity';
 import { Group } from '../group/group.entity';
 
@@ -23,21 +22,17 @@ export class Item {
   updated_at: Date;
 
   @Column()
-  @ApiProperty({ type: String })
   name: string;
 
   @Column({ nullable: true })
-  @ApiProperty({ type: String })
   description: string;
 
   @ManyToOne(() => Category, (category) => category.items)
   category: Category;
 
   @ManyToOne(() => Group, (group) => group.items)
-  @ApiProperty({ type: () => Group })
   group: Group;
 
   @ManyToOne(() => User, (owner) => owner.items)
-  @ApiProperty({ type: () => User })
   owner: User;
 }

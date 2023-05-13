@@ -2,24 +2,35 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Category } from './category.entity';
 import { DeleteResult, Repository } from 'typeorm';
+import { Group } from '../group/group.entity';
+import { CreateCategoryDto } from './dto/createCategory.dto';
 
 @Injectable()
 export class CategoryService {
   constructor(
     @InjectRepository(Category)
     private categoryRepository: Repository<Category>,
+    @InjectRepository(Group)
+    private groupRepository: Repository<Group>,
   ) {}
 
-  async findAll(): Promise<Category[]> {
-    return this.categoryRepository.find();
-  }
-
   async findOne(id: string): Promise<Category> {
-    return this.categoryRepository.findOneOrFail({ where: { id } });
+    return this.categoryRepository.findOneOrFail({
+      where: { id },
+    });
   }
 
-  async create(category: Partial<Category>): Promise<Category> {
+  async create(category: CreateCategoryDto): Promise<Category> {
+    const group = await this.groupRepository.findOneOrFail({
+      where: { id: category.groupId },
+    });
     const newCategory = this.categoryRepository.create(category);
+    newCategory.group = group;
+    if (category.parentCategoryId) {
+      newCategory.parent = await this.categoryRepository.findOneOrFail({
+        where: { id: category.parentCategoryId },
+      });
+    }
     return this.categoryRepository.save(newCategory);
   }
 

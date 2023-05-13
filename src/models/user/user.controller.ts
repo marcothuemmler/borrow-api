@@ -11,6 +11,7 @@ import {
 import { ApiTags } from '@nestjs/swagger';
 import { UserService } from './user.service';
 import { User } from './user.entity';
+import { CreateUserDto } from './dto/createUser.dto';
 
 @Controller('user')
 @ApiTags('User')
@@ -25,7 +26,7 @@ export class UserController {
 
   //create user
   @Post()
-  async create(@Body() user: User): Promise<User> {
+  async create(@Body() user: CreateUserDto): Promise<User> {
     return this.userService.create(user);
   }
 
