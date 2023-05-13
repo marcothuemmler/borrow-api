@@ -4,6 +4,8 @@ import { DeleteResult, Repository } from 'typeorm';
 import { Group } from './group.entity';
 import { User } from '../user/user.entity';
 import { CreateGroupDto } from './dto/createGroup.dto';
+import { InjectMapper } from '@automapper/nestjs';
+import { Mapper } from '@automapper/core';
 
 @Injectable()
 export class GroupService {
@@ -12,6 +14,8 @@ export class GroupService {
     private groupRepository: Repository<Group>,
     @InjectRepository(User)
     private userRepository: Repository<User>,
+    @InjectMapper()
+    private readonly classMapper: Mapper,
   ) {}
 
   async findOne(id: string): Promise<Group> {

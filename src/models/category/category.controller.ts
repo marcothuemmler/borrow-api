@@ -7,12 +7,15 @@ import {
   Param,
   Post,
   Put,
+  UseInterceptors,
 } from '@nestjs/common';
 import { CategoryService } from './category.service';
-import { Category } from './category.entity';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CreateCategoryDto } from './dto/createCategory.dto';
 import { UpdateCategoryDto } from './dto/updateCategory.dto';
+import { GetCategoryDto } from './dto/getCategory.dto';
+import { MapInterceptor } from '@automapper/nestjs';
+import { Category } from './category.entity';
 
 @Controller('category')
 @ApiTags('Category')
@@ -21,13 +24,17 @@ export class CategoryController {
 
   //get by id
   @Get(':id')
-  async findOne(@Param('id') id: string): Promise<Category> {
+  @ApiResponse({ type: GetCategoryDto })
+  @UseInterceptors(MapInterceptor(Category, GetCategoryDto))
+  async findOne(@Param('id') id: string): Promise<GetCategoryDto> {
     return await this.categoryService.findOne(id);
   }
 
   //create category
   @Post()
-  async create(@Body() category: CreateCategoryDto): Promise<Category> {
+  @ApiResponse({ type: GetCategoryDto })
+  @UseInterceptors(MapInterceptor(Category, GetCategoryDto))
+  async create(@Body() category: CreateCategoryDto): Promise<GetCategoryDto> {
     return this.categoryService.create(category);
   }
 

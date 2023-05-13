@@ -4,6 +4,8 @@ import { Category } from './category.entity';
 import { DeleteResult, Repository } from 'typeorm';
 import { Group } from '../group/group.entity';
 import { CreateCategoryDto } from './dto/createCategory.dto';
+import { InjectMapper } from '@automapper/nestjs';
+import { Mapper } from '@automapper/core';
 
 @Injectable()
 export class CategoryService {
@@ -12,11 +14,14 @@ export class CategoryService {
     private categoryRepository: Repository<Category>,
     @InjectRepository(Group)
     private groupRepository: Repository<Group>,
+    @InjectMapper()
+    private readonly classMapper: Mapper,
   ) {}
 
   async findOne(id: string): Promise<Category> {
     return this.categoryRepository.findOneOrFail({
       where: { id },
+      loadRelationIds: true,
     });
   }
 

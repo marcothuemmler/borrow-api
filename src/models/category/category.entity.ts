@@ -5,17 +5,15 @@ import {
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
-  Tree,
-  TreeChildren,
-  TreeParent,
   UpdateDateColumn,
 } from 'typeorm';
 import { Group } from '../group/group.entity';
 import { Item } from '../item/item.entity';
+import { AutoMap } from '@automapper/classes';
 
-@Tree('materialized-path')
 @Entity()
 export class Category {
+  @AutoMap()
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -25,8 +23,13 @@ export class Category {
   @UpdateDateColumn()
   updated_at: Date;
 
+  @AutoMap()
   @Column()
   name: string;
+
+  @AutoMap()
+  @Column({ nullable: true })
+  description: string;
 
   @ManyToOne(() => Group, (group: Group) => group.categories)
   group: Group;
@@ -34,9 +37,11 @@ export class Category {
   @OneToMany(() => Item, (item) => item.category)
   items: Item[];
 
-  @TreeParent()
+  @AutoMap()
+  @ManyToOne(() => Category, (category) => category.children)
   parent: Category;
 
-  @TreeChildren()
+  @AutoMap()
+  @OneToMany(() => Category, (category) => category.parent)
   children: Category[];
 }

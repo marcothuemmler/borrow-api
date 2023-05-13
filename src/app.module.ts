@@ -7,6 +7,8 @@ import { ItemModule } from './models/item/item.module';
 import { CategoryModule } from './models/category/category.module';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { AutomapperModule } from '@automapper/nestjs';
+import { classes } from '@automapper/classes';
 
 @Module({
   imports: [
@@ -15,6 +17,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
     UserModule,
     ItemModule,
     CategoryModule,
+    AutomapperModule.forRoot({ strategyInitializer: classes() }),
     TypeOrmModule.forRoot({
       type: process.env.DB_TYPE as any,
       host: process.env.PG_HOST,

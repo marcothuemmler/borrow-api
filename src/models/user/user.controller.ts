@@ -7,11 +7,15 @@ import {
   Param,
   Post,
   Put,
+  UseInterceptors,
 } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UserService } from './user.service';
 import { User } from './user.entity';
 import { CreateUserDto } from './dto/createUser.dto';
+import { UpdateUserDto } from './dto/updateUser.dto';
+import { MapInterceptor } from '@automapper/nestjs';
+import { GetUserDto } from './dto/getUser.dto';
 
 @Controller('user')
 @ApiTags('User')
@@ -20,19 +24,26 @@ export class UserController {
 
   //get by id
   @Get(':id')
-  async findOne(@Param('id') id: string): Promise<User> {
+  @ApiResponse({ type: GetUserDto })
+  @UseInterceptors(MapInterceptor(User, GetUserDto))
+  async findOne(@Param('id') id: string): Promise<GetUserDto> {
     return await this.userService.findOne(id);
   }
 
   //create user
   @Post()
-  async create(@Body() user: CreateUserDto): Promise<User> {
+  @ApiResponse({ type: GetUserDto })
+  @UseInterceptors(MapInterceptor(User, GetUserDto))
+  async create(@Body() user: CreateUserDto): Promise<GetUserDto> {
     return this.userService.create(user);
   }
 
   //update user
   @Put(':id')
-  async update(@Param('id') id: string, @Body() user: User): Promise<any> {
+  async update(
+    @Param('id') id: string,
+    @Body() user: UpdateUserDto,
+  ): Promise<any> {
     return this.userService.update(id, user);
   }
 

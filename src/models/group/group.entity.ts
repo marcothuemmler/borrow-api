@@ -11,9 +11,11 @@ import {
 import { User } from '../user/user.entity';
 import { Category } from '../category/category.entity';
 import { Item } from '../item/item.entity';
+import { AutoMap } from '@automapper/classes';
 
 @Entity()
 export class Group {
+  @AutoMap()
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -23,9 +25,11 @@ export class Group {
   @UpdateDateColumn()
   updated_at: Date;
 
+  @AutoMap()
   @Column()
   name: string;
 
+  @AutoMap()
   @Column({ nullable: true })
   description: string;
 

@@ -7,11 +7,15 @@ import {
   Param,
   Post,
   Put,
+  UseInterceptors,
 } from '@nestjs/common';
 import { GroupService } from './group.service';
-import { Group } from './group.entity';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CreateGroupDto } from './dto/createGroup.dto';
+import { GetGroupDto } from './dto/getGroup.dto';
+import { MapInterceptor } from '@automapper/nestjs';
+import { Group } from './group.entity';
+import { UpdateGroupDto } from './dto/updateGroup.dto';
 
 @Controller('group')
 @ApiTags('Group')
@@ -20,19 +24,27 @@ export class GroupController {
 
   //get by id
   @Get(':id')
-  async findOne(@Param('id') id: string): Promise<Group> {
+  @ApiResponse({ type: GetGroupDto })
+  @UseInterceptors(MapInterceptor(Group, GetGroupDto))
+  async findOne(@Param('id') id: string): Promise<GetGroupDto> {
     return await this.groupService.findOne(id);
   }
 
   //create group
   @Post()
-  async create(@Body() group: CreateGroupDto): Promise<Group> {
+  @ApiResponse({ type: GetGroupDto })
+  @UseInterceptors(MapInterceptor(Group, GetGroupDto))
+  async create(@Body() group: CreateGroupDto): Promise<GetGroupDto> {
     return this.groupService.create(group);
   }
 
   //update group
   @Put(':id')
-  async update(@Param('id') id: string, @Body() group: Group): Promise<any> {
+  @UseInterceptors(MapInterceptor(Group, GetGroupDto))
+  async update(
+    @Param('id') id: string,
+    @Body() group: UpdateGroupDto,
+  ): Promise<any> {
     return this.groupService.update(id, group);
   }
 

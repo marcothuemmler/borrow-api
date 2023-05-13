@@ -6,6 +6,8 @@ import { Category } from '../category/category.entity';
 import { Group } from '../group/group.entity';
 import { CreateItemDto } from './dto/createItem.dto';
 import { User } from '../user/user.entity';
+import { InjectMapper } from '@automapper/nestjs';
+import { Mapper } from '@automapper/core';
 
 @Injectable()
 export class ItemService {
@@ -18,24 +20,31 @@ export class ItemService {
     private groupRepository: Repository<Group>,
     @InjectRepository(User)
     private userRepository: Repository<User>,
+    @InjectMapper()
+    private readonly classMapper: Mapper,
   ) {}
 
   async findOne(id: string): Promise<Item> {
-    return this.itemRepository.findOneOrFail({ where: { id } });
+    return this.itemRepository.findOneOrFail({
+      where: { id },
+      loadRelationIds: true,
+    });
   }
 
   async create(item: CreateItemDto): Promise<Item> {
-    const category = await this.categoryRepository.findOneOrFail({
-      where: { id: item.categoryId },
+    const group = await this.groupRepository.findOneOrFail({
+      where: { id: item.groupId },
     });
     const user = await this.userRepository.findOneOrFail({
       where: { id: item.ownerId },
     });
+    const category = await this.categoryRepository.findOneOrFail({
+      where: { id: item.categoryId },
+    });
     const newItem = this.itemRepository.create(item);
+    newItem.group = group;
+    newItem.owner = user;
     newItem.category = category;
-    newItem.group = category.group;
-    user.items = [...(user.items || []), newItem];
-    await this.userRepository.save(user);
     return this.itemRepository.save(newItem);
   }
 
