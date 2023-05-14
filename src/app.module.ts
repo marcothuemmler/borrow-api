@@ -19,9 +19,9 @@ import { classes } from '@automapper/classes';
     CategoryModule,
     AutomapperModule.forRoot({ strategyInitializer: classes() }),
     TypeOrmModule.forRoot({
-      type: process.env.DB_TYPE as any,
+      type: process.env.DB_TYPE,
       host: process.env.PG_HOST,
-      port: parseInt(process.env.PG_PORT as string),
+      port: process.env.PG_PORT,
       username: process.env.PG_USER,
       password: process.env.PG_PASSWORD,
       database: process.env.PG_DB,
