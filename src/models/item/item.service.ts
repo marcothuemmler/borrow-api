@@ -8,6 +8,7 @@ import { CreateItemDto } from './dto/createItem.dto';
 import { User } from '../user/user.entity';
 import { InjectMapper } from '@automapper/nestjs';
 import { Mapper } from '@automapper/core';
+import { UpdateItemDto } from './dto/updateItem.dto';
 
 @Injectable()
 export class ItemService {
@@ -32,25 +33,27 @@ export class ItemService {
   }
 
   async create(item: CreateItemDto): Promise<Item> {
-    const group = await this.groupRepository.findOneOrFail({
+    const newItem = this.itemRepository.create(item);
+    newItem.group = await this.groupRepository.findOneOrFail({
       where: { id: item.groupId },
     });
-    const user = await this.userRepository.findOneOrFail({
+    newItem.owner = await this.userRepository.findOneOrFail({
       where: { id: item.ownerId },
     });
-    const category = await this.categoryRepository.findOneOrFail({
+    newItem.category = await this.categoryRepository.findOneOrFail({
       where: { id: item.categoryId },
     });
-    const newItem = this.itemRepository.create(item);
-    newItem.group = group;
-    newItem.owner = user;
-    newItem.category = category;
-    return this.itemRepository.save(newItem);
+    await this.itemRepository.save(newItem);
+    return this.findOne(newItem.id);
   }
 
-  async update(id: string, item: Partial<Item>): Promise<Item> {
-    await this.itemRepository.update(id, item);
-    return this.itemRepository.findOneOrFail({ where: { id } });
+  async update(id: string, item: UpdateItemDto): Promise<Item> {
+    const newItem = this.itemRepository.create(item);
+    newItem.category = await this.categoryRepository.findOneOrFail({
+      where: { id: item.categoryId },
+    });
+    await this.itemRepository.update(id, newItem);
+    return this.findOne(id);
   }
 
   async delete(id: string): Promise<void> {

@@ -29,6 +29,7 @@ export class UpdateCategoryDto {
     example: 'bb06b99f-b090-4d86-9e3b-6d525726817e',
   })
   @IsUUID()
+  @IsOptional()
   groupId: string;
 
   @ApiProperty({
@@ -37,5 +38,6 @@ export class UpdateCategoryDto {
     example: '7ad8e3ce-562f-42d4-83e3-fda370f940cd',
   })
   @IsUUID()
+  @IsOptional()
   parentCategoryId: string;
 }

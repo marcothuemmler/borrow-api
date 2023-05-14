@@ -20,13 +20,16 @@ export class UserService {
   }
 
   async create(user: CreateUserDto): Promise<User> {
+    // TODO: firebase / fusionAuth / ...
     const newUser = this.userRepository.create(user);
     return this.userRepository.save(newUser);
   }
 
   async update(id: string, user: Partial<User>): Promise<User> {
-    await this.userRepository.update(id, user);
-    return this.userRepository.findOneOrFail({ where: { id } });
+    // TODO: firebase / fusionAuth / ...
+    const newUser = this.userRepository.create(user);
+    await this.userRepository.update(id, newUser);
+    return this.findOne(id);
   }
 
   async delete(id: string): Promise<DeleteResult> {

@@ -39,7 +39,7 @@ export class Category {
 
   @AutoMap()
   @ManyToOne(() => Category, (category) => category.children)
-  parent: Category;
+  parent: Category | null;
 
   @AutoMap()
   @OneToMany(() => Category, (category) => category.parent)

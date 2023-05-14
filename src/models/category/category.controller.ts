@@ -40,10 +40,12 @@ export class CategoryController {
 
   //update category
   @Put(':id')
+  @ApiResponse({ type: GetCategoryDto })
+  @UseInterceptors(MapInterceptor(Category, GetCategoryDto))
   async update(
     @Param('id') id: string,
     @Body() category: UpdateCategoryDto,
-  ): Promise<any> {
+  ): Promise<GetCategoryDto> {
     return this.categoryService.update(id, category);
   }
 

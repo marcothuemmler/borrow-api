@@ -27,5 +27,5 @@ export class GetCategoryDto {
     nullable: true,
     example: '7ad8e3ce-562f-42d4-83e3-fda370f940cd',
   })
-  parent: GetCategoryDto;
+  parent: GetCategoryDto | null;
 }

@@ -9,9 +9,11 @@ import {
 } from 'typeorm';
 import { Group } from '../group/group.entity';
 import { Item } from '../item/item.entity';
+import { AutoMap } from '@automapper/classes';
 
 @Entity()
 export class User {
+  @AutoMap()
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -21,10 +23,11 @@ export class User {
   @UpdateDateColumn()
   updated_at: Date;
 
+  @AutoMap()
   @Column({ type: String })
   username: string;
 
-  @Column({ type: String })
+  @Column({ type: String, unique: true })
   email: string;
 
   @ManyToMany(() => Group)

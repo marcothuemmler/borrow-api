@@ -40,6 +40,7 @@ export class UserController {
 
   //update user
   @Put(':id')
+  @ApiResponse({ type: GetUserDto })
   async update(
     @Param('id') id: string,
     @Body() user: UpdateUserDto,

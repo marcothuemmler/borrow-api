@@ -1,8 +1,8 @@
 import { AutoMap } from '@automapper/classes';
 import { ApiProperty } from '@nestjs/swagger';
-import { User } from '../../user/user.entity';
 import { GetGroupDto } from '../../group/dto/getGroup.dto';
 import { GetCategoryDto } from '../../category/dto/getCategory.dto';
+import { GetUserDto } from '../../user/dto/getUser.dto';
 
 export class GetItemDto {
   @AutoMap()
@@ -39,5 +39,5 @@ export class GetItemDto {
     type: String,
     example: 'b0d3ff6a-fc7a-4f3c-bfb7-5db331a90889',
   })
-  owner: User;
+  owner: GetUserDto;
 }

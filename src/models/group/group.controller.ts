@@ -40,6 +40,7 @@ export class GroupController {
 
   //update group
   @Put(':id')
+  @ApiResponse({ type: GetGroupDto })
   @UseInterceptors(MapInterceptor(Group, GetGroupDto))
   async update(
     @Param('id') id: string,
