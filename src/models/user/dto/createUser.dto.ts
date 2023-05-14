@@ -8,18 +8,18 @@ import {
 } from 'class-validator';
 
 export class CreateUserDto {
-  @ApiProperty({ type: String })
+  @ApiProperty({ type: String, example: 'username' })
   @IsString()
   @Length(3)
   @IsNotEmpty()
   username: string;
 
-  @ApiProperty({ type: String })
+  @ApiProperty({ type: String, example: 'user@example.com' })
   @IsEmail()
   email: string;
 
   // minLength: 8, minLowercase: 1, minUppercase: 1, minNumbers: 1
-  @ApiProperty({ type: String })
+  @ApiProperty({ type: String, example: 'Password123' })
   @IsStrongPassword({ minSymbols: 0 })
   password: string;
 }

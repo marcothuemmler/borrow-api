@@ -11,7 +11,7 @@ import {
 } from '@nestjs/common';
 import { ItemService } from './item.service';
 import { Item } from './item.entity';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CreateItemDto } from './dto/createItem.dto';
 import { GetItemDto } from './dto/getItem.dto';
 import { MapInterceptor } from '@automapper/nestjs';
@@ -25,12 +25,14 @@ export class ItemController {
   //get by id
   @Get(':id')
   @UseInterceptors(MapInterceptor(Item, GetItemDto))
+  @ApiResponse({ type: GetItemDto })
   async findOne(@Param('id') id: string): Promise<GetItemDto> {
     return await this.itemService.findOne(id);
   }
 
   //create item
   @Post()
+  @ApiResponse({ type: GetItemDto })
   @UseInterceptors(MapInterceptor(Item, GetItemDto))
   async create(@Body() item: CreateItemDto): Promise<GetItemDto> {
     return this.itemService.create(item);
@@ -38,6 +40,7 @@ export class ItemController {
 
   //update item
   @Put(':id')
+  @ApiResponse({ type: GetItemDto })
   @UseInterceptors(MapInterceptor(Item, GetItemDto))
   async update(
     @Param('id') id: string,
