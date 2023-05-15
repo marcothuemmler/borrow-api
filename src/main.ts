@@ -18,6 +18,7 @@ async function bootstrap() {
       'API for "borrow.app", An Application Developed For The Mobile Application Lecture In Constance University Of Applied Sciences',
     )
     .setVersion('1.0')
+    .addBearerAuth()
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);

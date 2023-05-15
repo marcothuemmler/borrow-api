@@ -7,7 +7,7 @@ import {
   Length,
 } from 'class-validator';
 
-export class CreateUserDto {
+export class SignupDto {
   @ApiProperty({ type: String, example: 'username' })
   @IsString()
   @Length(3)

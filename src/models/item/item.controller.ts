@@ -11,7 +11,7 @@ import {
 } from '@nestjs/common';
 import { ItemService } from './item.service';
 import { Item } from './item.entity';
-import { ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CreateItemDto } from './dto/createItem.dto';
 import { GetItemDto } from './dto/getItem.dto';
 import { MapInterceptor } from '@automapper/nestjs';
@@ -19,6 +19,7 @@ import { UpdateItemDto } from './dto/updateItem.dto';
 
 @Controller('item')
 @ApiTags('Item')
+@ApiBearerAuth()
 export class ItemController {
   constructor(private readonly itemService: ItemService) {}
 
