@@ -36,7 +36,7 @@ export class User {
   @Column({ type: String, nullable: true })
   hashedRefreshToken: string | null;
 
-  @ManyToMany(() => Group, (group) => group.members)
+  @ManyToMany(() => Group)
   groups: Group[];
 
   @OneToMany(() => Item, (item) => item.owner)
