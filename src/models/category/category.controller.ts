@@ -10,7 +10,7 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { CategoryService } from './category.service';
-import { ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CreateCategoryDto } from './dto/createCategory.dto';
 import { UpdateCategoryDto } from './dto/updateCategory.dto';
 import { GetCategoryDto } from './dto/getCategory.dto';
@@ -19,6 +19,7 @@ import { Category } from './category.entity';
 
 @Controller('category')
 @ApiTags('Category')
+@ApiBearerAuth()
 export class CategoryController {
   constructor(private readonly categoryService: CategoryService) {}
 

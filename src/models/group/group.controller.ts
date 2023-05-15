@@ -10,7 +10,7 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { GroupService } from './group.service';
-import { ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CreateGroupDto } from './dto/createGroup.dto';
 import { GetGroupDto } from './dto/getGroup.dto';
 import { MapInterceptor } from '@automapper/nestjs';
@@ -19,6 +19,7 @@ import { UpdateGroupDto } from './dto/updateGroup.dto';
 
 @Controller('group')
 @ApiTags('Group')
+@ApiBearerAuth()
 export class GroupController {
   constructor(private readonly groupService: GroupService) {}
 

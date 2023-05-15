@@ -7,6 +7,8 @@ declare global {
       PG_USER: string;
       PG_PASSWORD: string;
       PG_DB: string;
+      ACCESS_TOKEN_SECRET: string;
+      REFRESH_TOKEN_SECRET: string;
     }
   }
 }

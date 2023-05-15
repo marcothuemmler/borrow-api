@@ -2,9 +2,10 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DeleteResult, Repository } from 'typeorm';
 import { User } from './user.entity';
-import { CreateUserDto } from './dto/createUser.dto';
 import { InjectMapper } from '@automapper/nestjs';
 import { Mapper } from '@automapper/core';
+import { SignupDto } from '../../auth/dto/signup.dto';
+import * as argon2 from 'argon2';
 
 @Injectable()
 export class UserService {
@@ -19,14 +20,18 @@ export class UserService {
     return this.userRepository.findOneOrFail({ where: { id } });
   }
 
-  async create(user: CreateUserDto): Promise<User> {
-    // TODO: firebase / fusionAuth / ...
-    const newUser = this.userRepository.create(user);
+  async findOneByEmail(email: string): Promise<User | null> {
+    return this.userRepository.findOneBy({ email });
+  }
+
+  async create(signupDto: SignupDto): Promise<User> {
+    const hash = await argon2.hash(signupDto.password);
+    const newUser = this.userRepository.create(signupDto);
+    newUser.hash = hash;
     return this.userRepository.save(newUser);
   }
 
   async update(id: string, user: Partial<User>): Promise<User> {
-    // TODO: firebase / fusionAuth / ...
     const newUser = this.userRepository.create(user);
     await this.userRepository.update(id, newUser);
     return this.findOne(id);

@@ -30,6 +30,12 @@ export class User {
   @Column({ type: String, unique: true })
   email: string;
 
+  @Column({ type: String })
+  hash: string;
+
+  @Column({ type: String, nullable: true })
+  hashedRefreshToken: string | null;
+
   @ManyToMany(() => Group, (group) => group.members)
   groups: Group[];
 

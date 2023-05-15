@@ -5,20 +5,19 @@ import {
   Get,
   NotFoundException,
   Param,
-  Post,
   Put,
   UseInterceptors,
 } from '@nestjs/common';
-import { ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UserService } from './user.service';
 import { User } from './user.entity';
-import { CreateUserDto } from './dto/createUser.dto';
 import { UpdateUserDto } from './dto/updateUser.dto';
 import { MapInterceptor } from '@automapper/nestjs';
 import { GetUserDto } from './dto/getUser.dto';
 
 @Controller('user')
 @ApiTags('User')
+@ApiBearerAuth()
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
@@ -28,14 +27,6 @@ export class UserController {
   @UseInterceptors(MapInterceptor(User, GetUserDto))
   async findOne(@Param('id') id: string): Promise<GetUserDto> {
     return await this.userService.findOne(id);
-  }
-
-  //create user
-  @Post()
-  @ApiResponse({ type: GetUserDto })
-  @UseInterceptors(MapInterceptor(User, GetUserDto))
-  async create(@Body() user: CreateUserDto): Promise<GetUserDto> {
-    return this.userService.create(user);
   }
 
   //update user
