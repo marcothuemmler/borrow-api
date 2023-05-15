@@ -30,7 +30,7 @@ export class User {
   @Column({ type: String, unique: true })
   email: string;
 
-  @ManyToMany(() => Group)
+  @ManyToMany(() => Group, (group) => group.members)
   groups: Group[];
 
   @OneToMany(() => Item, (item) => item.owner)

@@ -32,7 +32,7 @@ export class CategoryService {
       id: Equal(category.groupId),
     });
     newCategory.parent = await this.categoryRepository.findOneBy({
-      id: Equal(category.parentCategoryId),
+      id: Equal(category.parentId),
     });
     await this.categoryRepository.save(newCategory);
     return this.findOne(newCategory.id);
@@ -41,7 +41,7 @@ export class CategoryService {
   async update(id: string, category: UpdateCategoryDto): Promise<Category> {
     const newCategory = this.categoryRepository.create(category);
     newCategory.parent = await this.categoryRepository.findOneBy({
-      id: Equal(category.parentCategoryId),
+      id: Equal(category.parentId),
     });
     if (category.groupId) {
       newCategory.group = await this.groupRepository.findOneByOrFail({

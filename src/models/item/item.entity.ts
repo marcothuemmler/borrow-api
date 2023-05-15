@@ -36,10 +36,10 @@ export class Item {
   category: Category;
 
   @AutoMap(() => Group)
-  @ManyToOne(() => Group, (group) => group.items)
+  @ManyToOne(() => Group, (group) => group.items, { onDelete: 'CASCADE' })
   group: Group;
 
   @AutoMap(() => User)
-  @ManyToOne(() => User, (owner) => owner.items)
+  @ManyToOne(() => User, (owner) => owner.items, { onDelete: 'CASCADE' })
   owner: User;
 }

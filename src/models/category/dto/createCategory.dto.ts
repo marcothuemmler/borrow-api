@@ -38,5 +38,5 @@ export class CreateCategoryDto {
   })
   @IsUUID()
   @IsOptional()
-  parentCategoryId: string;
+  parentId: string;
 }

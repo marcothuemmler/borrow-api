@@ -27,7 +27,7 @@ export class GroupService {
       id: Equal(group.creatorId),
     });
     const newGroup = this.groupRepository.create(group);
-    newGroup.users = [owner];
+    newGroup.members = [owner];
     return this.groupRepository.save(newGroup);
   }
 

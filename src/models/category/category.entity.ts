@@ -31,14 +31,18 @@ export class Category {
   @Column({ nullable: true })
   description: string;
 
-  @ManyToOne(() => Group, (group: Group) => group.categories)
+  @ManyToOne(() => Group, (group) => group.categories, {
+    onDelete: 'CASCADE',
+  })
   group: Group;
 
   @OneToMany(() => Item, (item) => item.category)
   items: Item[];
 
   @AutoMap()
-  @ManyToOne(() => Category, (category) => category.children)
+  @ManyToOne(() => Category, (category) => category.children, {
+    onDelete: 'SET NULL',
+  })
   parent: Category | null;
 
   @AutoMap()

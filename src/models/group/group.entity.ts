@@ -33,9 +33,9 @@ export class Group {
   @Column({ nullable: true })
   description: string;
 
-  @ManyToMany(() => User)
-  @JoinTable()
-  users: User[];
+  @ManyToMany(() => User, (user) => user.groups)
+  @JoinTable({ name: 'group_members' })
+  members: User[];
 
   @OneToMany(() => Category, (category) => category.group)
   categories: Category[];
