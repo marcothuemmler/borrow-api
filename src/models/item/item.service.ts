@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Equal, Repository } from 'typeorm';
 import { Item } from './item.entity';
 import { Category } from '../category/category.entity';
 import { Group } from '../group/group.entity';
@@ -34,14 +34,14 @@ export class ItemService {
 
   async create(item: CreateItemDto): Promise<Item> {
     const newItem = this.itemRepository.create(item);
-    newItem.group = await this.groupRepository.findOneOrFail({
-      where: { id: item.groupId },
+    newItem.group = await this.groupRepository.findOneByOrFail({
+      id: Equal(item.groupId),
     });
-    newItem.owner = await this.userRepository.findOneOrFail({
-      where: { id: item.ownerId },
+    newItem.owner = await this.userRepository.findOneByOrFail({
+      id: Equal(item.ownerId),
     });
-    newItem.category = await this.categoryRepository.findOneOrFail({
-      where: { id: item.categoryId },
+    newItem.category = await this.categoryRepository.findOneByOrFail({
+      id: Equal(item.categoryId),
     });
     await this.itemRepository.save(newItem);
     return this.findOne(newItem.id);
@@ -49,8 +49,8 @@ export class ItemService {
 
   async update(id: string, item: UpdateItemDto): Promise<Item> {
     const newItem = this.itemRepository.create(item);
-    newItem.category = await this.categoryRepository.findOneOrFail({
-      where: { id: item.categoryId },
+    newItem.category = await this.categoryRepository.findOneByOrFail({
+      id: Equal(item.categoryId),
     });
     await this.itemRepository.update(id, newItem);
     return this.findOne(id);

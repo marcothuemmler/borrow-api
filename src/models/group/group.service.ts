@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DeleteResult, Repository } from 'typeorm';
+import { DeleteResult, Equal, Repository } from 'typeorm';
 import { Group } from './group.entity';
 import { User } from '../user/user.entity';
 import { CreateGroupDto } from './dto/createGroup.dto';
@@ -23,8 +23,8 @@ export class GroupService {
   }
 
   async create(group: CreateGroupDto): Promise<Group> {
-    const owner = await this.userRepository.findOneOrFail({
-      where: { id: group.creatorId },
+    const owner = await this.userRepository.findOneByOrFail({
+      id: Equal(group.creatorId),
     });
     const newGroup = this.groupRepository.create(group);
     newGroup.users = [owner];
@@ -33,7 +33,7 @@ export class GroupService {
 
   async update(id: string, group: Partial<Group>): Promise<Group> {
     await this.groupRepository.update(id, group);
-    return this.groupRepository.findOneOrFail({ where: { id } });
+    return this.groupRepository.findOneByOrFail({ id });
   }
 
   async delete(id: string): Promise<DeleteResult> {
