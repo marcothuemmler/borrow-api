@@ -31,6 +31,14 @@ export class ItemController {
     return await this.itemService.findOne(id);
   }
 
+  //get by group id
+  @Get('by-group/:id')
+  @ApiResponse({ type: GetItemDto, isArray: true })
+  @UseInterceptors(MapInterceptor(Item, GetItemDto, { isArray: true }))
+  async getItemsByGroupId(@Param('id') groupId: string): Promise<GetItemDto[]> {
+    return this.itemService.findByGroupId(groupId);
+  }
+
   //create item
   @Post()
   @ApiResponse({ type: GetItemDto })

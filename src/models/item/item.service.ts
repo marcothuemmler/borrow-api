@@ -28,7 +28,14 @@ export class ItemService {
   async findOne(id: string): Promise<Item> {
     return this.itemRepository.findOneOrFail({
       where: { id },
-      loadRelationIds: true,
+      relations: ['owner', 'category'],
+    });
+  }
+
+  async findByGroupId(groupId: string): Promise<Item[]> {
+    return await this.itemRepository.find({
+      where: { group: { id: groupId } },
+      relations: ['owner', 'category'],
     });
   }
 
