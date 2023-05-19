@@ -28,16 +28,10 @@ export class GetItemDto {
   category: GetCategoryDto;
 
   @AutoMap()
-  @ApiProperty({
-    type: String,
-    example: 'bb06b99f-b090-4d86-9e3b-6d525726817e',
-  })
+  @ApiProperty()
   group: GetGroupDto;
 
   @AutoMap()
-  @ApiProperty({
-    type: String,
-    example: 'b0d3ff6a-fc7a-4f3c-bfb7-5db331a90889',
-  })
+  @ApiProperty()
   owner: GetUserDto;
 }

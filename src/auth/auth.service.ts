@@ -57,15 +57,16 @@ export class AuthService {
   }
 
   async getTokens(userId: string, email: string): Promise<Tokens> {
+    const payload = { sub: userId, email };
     const [accessToken, refreshToken] = await Promise.all([
-      this.jwtService.signAsync(
-        { sub: userId, email },
-        { secret: jwtConstants.accessTokenSecret, expiresIn: '15m' },
-      ),
-      this.jwtService.signAsync(
-        { sub: userId, email },
-        { secret: jwtConstants.refreshTokenSecret, expiresIn: '7d' },
-      ),
+      this.jwtService.signAsync(payload, {
+        secret: jwtConstants.accessTokenSecret,
+        expiresIn: '15m',
+      }),
+      this.jwtService.signAsync(payload, {
+        secret: jwtConstants.refreshTokenSecret,
+        expiresIn: '7d',
+      }),
     ]);
     return { accessToken: accessToken, refreshToken: refreshToken };
   }
