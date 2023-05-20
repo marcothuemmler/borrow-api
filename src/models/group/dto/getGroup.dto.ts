@@ -1,5 +1,8 @@
 import { AutoMap } from '@automapper/classes';
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { GetCategoryDto } from '../../category/dto/getCategory.dto';
+import { GetUserDto } from '../../user/dto/getUser.dto';
+import { GetItemDto } from '../../item/dto/getItem.dto';
 
 export class GetGroupDto {
   @AutoMap()
@@ -16,4 +19,16 @@ export class GetGroupDto {
   @AutoMap()
   @ApiProperty({ type: String, nullable: true, example: 'Group description' })
   description: string;
+
+  @AutoMap(() => GetCategoryDto)
+  @ApiPropertyOptional({ type: () => GetCategoryDto, isArray: true })
+  categories: GetCategoryDto[];
+
+  @AutoMap(() => GetUserDto)
+  @ApiPropertyOptional({ type: () => GetUserDto, isArray: true })
+  members: GetUserDto[];
+
+  @AutoMap(() => GetItemDto)
+  @ApiPropertyOptional({ type: () => GetItemDto, isArray: true })
+  items: GetItemDto[];
 }

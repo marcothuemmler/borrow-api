@@ -6,6 +6,7 @@ import { User } from '../user/user.entity';
 import { CreateGroupDto } from './dto/createGroup.dto';
 import { InjectMapper } from '@automapper/nestjs';
 import { Mapper } from '@automapper/core';
+import { QueryGroupDto } from './dto/queryGroupDto';
 
 @Injectable()
 export class GroupService {
@@ -18,8 +19,15 @@ export class GroupService {
     private readonly classMapper: Mapper,
   ) {}
 
-  async findOne(id: string): Promise<Group> {
-    return this.groupRepository.findOneOrFail({ where: { id } });
+  async findOne(id: string, query?: QueryGroupDto): Promise<Group> {
+    let relations = query?.relations;
+    if (relations && !Array.isArray(relations)) {
+      relations = [relations];
+    }
+    return await this.groupRepository.findOneOrFail({
+      where: { id },
+      relations: relations,
+    });
   }
 
   async create(group: CreateGroupDto): Promise<Group> {

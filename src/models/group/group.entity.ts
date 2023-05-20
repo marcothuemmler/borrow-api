@@ -33,13 +33,16 @@ export class Group {
   @Column({ nullable: true })
   description: string;
 
+  @AutoMap(() => User)
   @ManyToMany(() => User)
   @JoinTable({ name: 'group_members' })
   members: User[];
 
+  @AutoMap(() => Category)
   @OneToMany(() => Category, (category) => category.group)
   categories: Category[];
 
+  @AutoMap(() => Item)
   @OneToMany(() => Item, (item) => item.group)
   items: Item[];
 }
