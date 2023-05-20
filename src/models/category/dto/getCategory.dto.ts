@@ -21,7 +21,7 @@ export class GetCategoryDto {
   })
   description: string;
 
-  @AutoMap()
+  @AutoMap(() => GetCategoryDto)
   @ApiProperty({
     type: String,
     nullable: true,
