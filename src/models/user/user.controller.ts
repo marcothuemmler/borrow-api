@@ -6,6 +6,7 @@ import {
   NotFoundException,
   Param,
   Put,
+  Query,
   UseInterceptors,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
@@ -14,6 +15,8 @@ import { User } from './user.entity';
 import { UpdateUserDto } from './dto/updateUser.dto';
 import { MapInterceptor } from '@automapper/nestjs';
 import { GetUserDto } from './dto/getUser.dto';
+import { GetCurrentUserId } from '../../common/decorators/get-current-user-id.decorator';
+import { QueryUserDto } from './dto/queryUser.dto';
 
 @Controller('user')
 @ApiTags('User')
@@ -27,6 +30,16 @@ export class UserController {
   @UseInterceptors(MapInterceptor(User, GetUserDto))
   async findOne(@Param('id') id: string): Promise<GetUserDto> {
     return await this.userService.findOne(id);
+  }
+
+  @Get('auth/current-user')
+  @ApiResponse({ type: GetUserDto })
+  @UseInterceptors(MapInterceptor(User, GetUserDto))
+  async findCurrentUser(
+    @GetCurrentUserId() id: string,
+    @Query() query: QueryUserDto,
+  ) {
+    return await this.userService.findOne(id, query);
   }
 
   //update user

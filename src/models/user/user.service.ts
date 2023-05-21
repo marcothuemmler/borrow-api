@@ -6,6 +6,7 @@ import { InjectMapper } from '@automapper/nestjs';
 import { Mapper } from '@automapper/core';
 import { SignupDto } from '../../auth/dto/signup.dto';
 import * as argon2 from 'argon2';
+import { QueryUserDto } from './dto/queryUser.dto';
 
 @Injectable()
 export class UserService {
@@ -16,8 +17,15 @@ export class UserService {
     private readonly classMapper: Mapper,
   ) {}
 
-  async findOne(id: string): Promise<User> {
-    return this.userRepository.findOneOrFail({ where: { id } });
+  async findOne(id: string, query?: QueryUserDto): Promise<User> {
+    let relations = query?.relations;
+    if (relations && !Array.isArray(relations)) {
+      relations = [relations];
+    }
+    return await this.userRepository.findOneOrFail({
+      where: { id },
+      relations: relations,
+    });
   }
 
   async findOneByEmail(email: string): Promise<User | null> {
