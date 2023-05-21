@@ -31,21 +31,23 @@ export class Category {
   @Column({ nullable: true })
   description: string;
 
+  @AutoMap(() => Group)
   @ManyToOne(() => Group, (group) => group.categories, {
     onDelete: 'CASCADE',
   })
   group: Group;
 
+  @AutoMap(() => [Item])
   @OneToMany(() => Item, (item) => item.category)
   items: Item[];
 
-  @AutoMap()
+  @AutoMap(() => Category)
   @ManyToOne(() => Category, (category) => category.children, {
     onDelete: 'SET NULL',
   })
   parent: Category | null;
 
-  @AutoMap()
+  @AutoMap(() => [Category])
   @OneToMany(() => Category, (category) => category.parent)
   children: Category[];
 }

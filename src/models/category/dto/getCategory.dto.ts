@@ -1,5 +1,6 @@
 import { AutoMap } from '@automapper/classes';
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { GetItemDto } from '../../item/dto/getItem.dto';
 
 export class GetCategoryDto {
   @AutoMap()
@@ -22,10 +23,10 @@ export class GetCategoryDto {
   description: string;
 
   @AutoMap(() => GetCategoryDto)
-  @ApiProperty({
-    type: String,
-    nullable: true,
-    example: '7ad8e3ce-562f-42d4-83e3-fda370f940cd',
-  })
+  @ApiPropertyOptional()
   parent: GetCategoryDto | null;
+
+  @AutoMap(() => [GetItemDto])
+  @ApiPropertyOptional()
+  items: GetItemDto[];
 }

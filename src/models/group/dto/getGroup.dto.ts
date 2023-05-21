@@ -20,15 +20,15 @@ export class GetGroupDto {
   @ApiProperty({ type: String, nullable: true, example: 'Group description' })
   description: string;
 
-  @AutoMap(() => GetCategoryDto)
+  @AutoMap(() => [GetCategoryDto])
   @ApiPropertyOptional({ type: () => GetCategoryDto, isArray: true })
   categories: GetCategoryDto[];
 
-  @AutoMap(() => GetUserDto)
+  @AutoMap(() => [GetUserDto])
   @ApiPropertyOptional({ type: () => GetUserDto, isArray: true })
   members: GetUserDto[];
 
-  @AutoMap(() => GetItemDto)
+  @AutoMap(() => [GetItemDto])
   @ApiPropertyOptional({ type: () => GetItemDto, isArray: true })
   items: GetItemDto[];
 }
