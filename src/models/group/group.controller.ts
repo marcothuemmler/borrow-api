@@ -43,8 +43,8 @@ import {
     },
   },
 })
-@Controller('group')
-@ApiTags('Group')
+@Controller('groups')
+@ApiTags('Groups')
 @ApiBearerAuth()
 export class GroupController implements CrudController<Group> {
   constructor(public service: GroupService) {}
