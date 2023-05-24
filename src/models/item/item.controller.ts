@@ -44,10 +44,6 @@ import { UpdateItemDto } from './dto/updateItem.dto';
 export class ItemController implements CrudController<Item> {
   constructor(public service: ItemService) {}
 
-  get base(): CrudController<Item> {
-    return this;
-  }
-
   @Override()
   @ApiResponse({ type: GetItemDto })
   @UseInterceptors(MapInterceptor(Item, GetItemDto))
@@ -59,7 +55,7 @@ export class ItemController implements CrudController<Item> {
   @ApiResponse({ type: GetItemDto })
   @UseInterceptors(MapInterceptor(Item, GetItemDto))
   getOne(@ParsedRequest() query: CrudRequest): Promise<GetItemDto> | undefined {
-    return this.base.getOneBase?.(query);
+    return this.service.getOne(query);
   }
 
   @Override()
@@ -68,6 +64,6 @@ export class ItemController implements CrudController<Item> {
   async getMany(
     @ParsedRequest() query: CrudRequest,
   ): Promise<GetManyDefaultResponse<GetItemDto> | GetItemDto[] | undefined> {
-    return this.base.getManyBase?.(query);
+    return this.service.getMany(query);
   }
 }

@@ -51,10 +51,6 @@ import {
 export class CategoryController implements CrudController<Category> {
   constructor(public service: CategoryService) {}
 
-  get base(): CrudController<Category> {
-    return this;
-  }
-
   @Override()
   @ApiResponse({ type: GetCategoryDto })
   @UseInterceptors(MapInterceptor(Category, GetCategoryDto))
@@ -80,7 +76,7 @@ export class CategoryController implements CrudController<Category> {
   async getOne(
     @ParsedRequest() request: CrudRequest,
   ): Promise<GetCategoryDto | undefined> {
-    return this.base.getOneBase?.(request);
+    return this.service.getOne(request);
   }
 
   @Override()
@@ -91,6 +87,6 @@ export class CategoryController implements CrudController<Category> {
   ): Promise<
     GetManyDefaultResponse<GetCategoryDto> | GetCategoryDto[] | undefined
   > {
-    return this.base.getManyBase?.(request);
+    return this.service.getMany(request);
   }
 }

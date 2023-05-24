@@ -1,15 +1,4 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  NotFoundException,
-  Param,
-  Post,
-  Put,
-  Query,
-  UseInterceptors,
-} from '@nestjs/common';
+import { Body, Controller, UseInterceptors } from '@nestjs/common';
 import { GroupService } from './group.service';
 import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CreateGroupDto } from './dto/createGroup.dto';
@@ -17,52 +6,72 @@ import { GetGroupDto } from './dto/getGroup.dto';
 import { MapInterceptor } from '@automapper/nestjs';
 import { Group } from './group.entity';
 import { UpdateGroupDto } from './dto/updateGroup.dto';
-import { QueryGroupDto } from './dto/queryGroupDto';
+import {
+  Crud,
+  CrudController,
+  CrudRequest,
+  Override,
+  ParsedRequest,
+} from '@nestjsx/crud';
 
+@Crud({
+  model: {
+    type: Group,
+  },
+  dto: {
+    create: CreateGroupDto,
+    update: UpdateGroupDto,
+    replace: UpdateGroupDto,
+  },
+  params: {
+    id: { type: 'uuid', primary: true, disabled: false, field: 'id' },
+  },
+  routes: {
+    exclude: ['replaceOneBase', 'createManyBase'],
+  },
+  query: {
+    join: {
+      members: {
+        eager: false,
+      },
+      items: {
+        eager: false,
+      },
+      categories: {
+        eager: false,
+      },
+    },
+  },
+})
 @Controller('group')
 @ApiTags('Group')
 @ApiBearerAuth()
-export class GroupController {
-  constructor(private readonly groupService: GroupService) {}
+export class GroupController implements CrudController<Group> {
+  constructor(public service: GroupService) {}
 
-  //get by id
-  @Get(':id')
+  @Override()
   @ApiResponse({ type: GetGroupDto })
   @UseInterceptors(MapInterceptor(Group, GetGroupDto))
-  async findOne(
-    @Param('id') id: string,
-    @Query() query: QueryGroupDto,
-  ): Promise<GetGroupDto> {
-    return await this.groupService.findOne(id, query);
+  async getOne(
+    @ParsedRequest() query: CrudRequest,
+  ): Promise<GetGroupDto | undefined> {
+    return this.service.getOne(query);
   }
 
-  //create group
-  @Post()
+  @Override()
   @ApiResponse({ type: GetGroupDto })
   @UseInterceptors(MapInterceptor(Group, GetGroupDto))
-  async create(@Body() group: CreateGroupDto): Promise<GetGroupDto> {
-    return this.groupService.create(group);
+  async createOne(@Body() group: CreateGroupDto): Promise<GetGroupDto> {
+    return this.service.create(group);
   }
 
-  //update group
-  @Put(':id')
+  @Override()
   @ApiResponse({ type: GetGroupDto })
   @UseInterceptors(MapInterceptor(Group, GetGroupDto))
-  async update(
-    @Param('id') id: string,
+  async updateOne(
+    @ParsedRequest() query: CrudRequest,
     @Body() group: UpdateGroupDto,
   ): Promise<any> {
-    return this.groupService.update(id, group);
-  }
-
-  //delete group
-  @Delete(':id')
-  async delete(@Param('id') id: string): Promise<any> {
-    //handle error if group does not exist
-    const group = await this.groupService.findOne(id);
-    if (!group) {
-      throw new NotFoundException('Group does not exist!');
-    }
-    return this.groupService.delete(id);
+    return this.service.updateOne(query, group);
   }
 }
