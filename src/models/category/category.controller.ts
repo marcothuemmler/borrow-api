@@ -1,14 +1,4 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  NotFoundException,
-  Param,
-  Post,
-  Put,
-  UseInterceptors,
-} from '@nestjs/common';
+import { Body, Controller, Param, UseInterceptors } from '@nestjs/common';
 import { CategoryService } from './category.service';
 import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CreateCategoryDto } from './dto/createCategory.dto';
@@ -16,48 +6,91 @@ import { UpdateCategoryDto } from './dto/updateCategory.dto';
 import { GetCategoryDto } from './dto/getCategory.dto';
 import { MapInterceptor } from '@automapper/nestjs';
 import { Category } from './category.entity';
+import {
+  Crud,
+  CrudController,
+  CrudRequest,
+  GetManyDefaultResponse,
+  Override,
+  ParsedRequest,
+} from '@nestjsx/crud';
 
-@Controller('category')
-@ApiTags('Category')
+@Crud({
+  model: { type: Category },
+  dto: {
+    create: CreateCategoryDto,
+    update: UpdateCategoryDto,
+    replace: UpdateCategoryDto,
+  },
+  routes: {
+    exclude: ['replaceOneBase', 'createManyBase'],
+  },
+  params: {
+    id: { type: 'uuid', primary: true, disabled: false, field: 'id' },
+  },
+  query: {
+    join: {
+      group: {
+        eager: false,
+      },
+      items: {
+        eager: false,
+      },
+      children: {
+        eager: false,
+      },
+      parent: {
+        eager: false,
+      },
+    },
+  },
+})
+@Controller('categories')
+@ApiTags('Categories')
 @ApiBearerAuth()
-export class CategoryController {
-  constructor(private readonly categoryService: CategoryService) {}
+export class CategoryController implements CrudController<Category> {
+  constructor(public service: CategoryService) {}
 
-  //get by id
-  @Get(':id')
-  @ApiResponse({ type: GetCategoryDto })
-  @UseInterceptors(MapInterceptor(Category, GetCategoryDto))
-  async findOne(@Param('id') id: string): Promise<GetCategoryDto> {
-    return await this.categoryService.findOne(id);
+  get base(): CrudController<Category> {
+    return this;
   }
 
-  //create category
-  @Post()
+  @Override()
   @ApiResponse({ type: GetCategoryDto })
   @UseInterceptors(MapInterceptor(Category, GetCategoryDto))
-  async create(@Body() category: CreateCategoryDto): Promise<GetCategoryDto> {
-    return this.categoryService.create(category);
+  async createOne(
+    @Body() category: CreateCategoryDto,
+  ): Promise<GetCategoryDto> {
+    return this.service.create(category);
   }
 
-  //update category
-  @Put(':id')
+  @Override()
   @ApiResponse({ type: GetCategoryDto })
   @UseInterceptors(MapInterceptor(Category, GetCategoryDto))
-  async update(
+  async updateOne(
     @Param('id') id: string,
     @Body() category: UpdateCategoryDto,
   ): Promise<GetCategoryDto> {
-    return this.categoryService.update(id, category);
+    return this.service.update(id, category);
   }
 
-  //delete category
-  @Delete(':id')
-  async delete(@Param('id') id: string): Promise<any> {
-    //handle error if category does not exist
-    const category = await this.categoryService.findOne(id);
-    if (!category) {
-      throw new NotFoundException('Category does not exist!');
-    }
-    return this.categoryService.delete(id);
+  @Override()
+  @ApiResponse({ type: GetCategoryDto })
+  @UseInterceptors(MapInterceptor(Category, GetCategoryDto))
+  async getOne(
+    @ParsedRequest() request: CrudRequest,
+  ): Promise<GetCategoryDto | undefined> {
+    return this.base.getOneBase?.(request);
+  }
+
+  @Override()
+  @ApiResponse({ type: GetCategoryDto, isArray: true })
+  @UseInterceptors(MapInterceptor(Category, GetCategoryDto, { isArray: true }))
+  async getMany(
+    @ParsedRequest() request: CrudRequest,
+  ): Promise<
+    GetManyDefaultResponse<GetCategoryDto> | GetCategoryDto[] | undefined
+  > {
+    return this.base.getManyBase?.(request);
   }
 }

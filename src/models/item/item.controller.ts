@@ -21,6 +21,9 @@ import { UpdateItemDto } from './dto/updateItem.dto';
   params: {
     id: { type: 'uuid', primary: true, disabled: false, field: 'id' },
   },
+  routes: {
+    exclude: ['replaceOneBase', 'createManyBase'],
+  },
   query: {
     join: {
       group: {
@@ -35,8 +38,8 @@ import { UpdateItemDto } from './dto/updateItem.dto';
     },
   },
 })
-@Controller('item')
-@ApiTags('Item')
+@Controller('items')
+@ApiTags('Items')
 @ApiBearerAuth()
 export class ItemController implements CrudController<Item> {
   constructor(public service: ItemService) {}
@@ -62,9 +65,9 @@ export class ItemController implements CrudController<Item> {
   @Override()
   @ApiResponse({ type: GetItemDto, isArray: true })
   @UseInterceptors(MapInterceptor(Item, GetItemDto, { isArray: true }))
-  getMany(
+  async getMany(
     @ParsedRequest() query: CrudRequest,
-  ): Promise<GetManyDefaultResponse<GetItemDto> | GetItemDto[]> | undefined {
+  ): Promise<GetManyDefaultResponse<GetItemDto> | GetItemDto[] | undefined> {
     return this.base.getManyBase?.(query);
   }
 }
