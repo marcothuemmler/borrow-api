@@ -1,63 +1,70 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  NotFoundException,
-  Param,
-  Post,
-  Put,
-  UseInterceptors,
-} from '@nestjs/common';
+import { Body, Controller, UseInterceptors } from '@nestjs/common';
 import { ItemService } from './item.service';
 import { Item } from './item.entity';
 import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CreateItemDto } from './dto/createItem.dto';
 import { GetItemDto } from './dto/getItem.dto';
 import { MapInterceptor } from '@automapper/nestjs';
+import {
+  Crud,
+  CrudController,
+  CrudRequest,
+  GetManyDefaultResponse,
+  Override,
+  ParsedRequest,
+} from '@nestjsx/crud';
 import { UpdateItemDto } from './dto/updateItem.dto';
 
+@Crud({
+  model: { type: Item },
+  dto: { create: CreateItemDto, update: UpdateItemDto, replace: UpdateItemDto },
+  params: {
+    id: { type: 'uuid', primary: true, disabled: false, field: 'id' },
+  },
+  query: {
+    join: {
+      group: {
+        eager: false,
+      },
+      category: {
+        eager: false,
+      },
+      owner: {
+        eager: false,
+      },
+    },
+  },
+})
 @Controller('item')
 @ApiTags('Item')
 @ApiBearerAuth()
-export class ItemController {
-  constructor(private readonly itemService: ItemService) {}
+export class ItemController implements CrudController<Item> {
+  constructor(public service: ItemService) {}
 
-  //get by id
-  @Get(':id')
-  @UseInterceptors(MapInterceptor(Item, GetItemDto))
-  @ApiResponse({ type: GetItemDto })
-  async findOne(@Param('id') id: string): Promise<GetItemDto> {
-    return await this.itemService.findOne(id);
+  get base(): CrudController<Item> {
+    return this;
   }
 
-  //create item
-  @Post()
+  @Override()
   @ApiResponse({ type: GetItemDto })
   @UseInterceptors(MapInterceptor(Item, GetItemDto))
-  async create(@Body() item: CreateItemDto): Promise<GetItemDto> {
-    return this.itemService.create(item);
+  async createOne(@Body() item: CreateItemDto): Promise<GetItemDto> {
+    return this.service.create(item);
   }
 
-  //update item
-  @Put(':id')
+  @Override()
   @ApiResponse({ type: GetItemDto })
   @UseInterceptors(MapInterceptor(Item, GetItemDto))
-  async update(
-    @Param('id') id: string,
-    @Body() item: UpdateItemDto,
-  ): Promise<GetItemDto> {
-    return this.itemService.update(id, item);
+  getOne(@ParsedRequest() query: CrudRequest): Promise<GetItemDto> | undefined {
+    return this.base.getOneBase?.(query);
   }
 
-  //delete item
-  @Delete(':id')
-  async delete(@Param('id') id: string): Promise<any> {
-    //handle error if item does not exist
-    const item = await this.itemService.findOne(id);
-    if (!item) {
-      throw new NotFoundException('Item does not exist!');
-    }
-    return this.itemService.delete(id);
+  @Override()
+  @ApiResponse({ type: GetItemDto, isArray: true })
+  @UseInterceptors(MapInterceptor(Item, GetItemDto, { isArray: true }))
+  getMany(
+    @ParsedRequest() query: CrudRequest,
+  ): Promise<GetManyDefaultResponse<GetItemDto> | GetItemDto[]> | undefined {
+    return this.base.getManyBase?.(query);
   }
 }
