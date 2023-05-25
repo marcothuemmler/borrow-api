@@ -38,6 +38,12 @@ import {
       items: {
         eager: false,
       },
+      'items.category': {
+        eager: false,
+      },
+      'items.owner': {
+        eager: false,
+      },
       categories: {
         eager: false,
       },
