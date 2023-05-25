@@ -13,12 +13,10 @@ import {
   Override,
   ParsedRequest,
 } from '@nestjsx/crud';
-import { SignupDto } from '../../auth/dto/signup.dto';
 
 @Crud({
   model: { type: User },
   dto: {
-    create: SignupDto,
     update: UpdateUserDto,
     replace: UpdateUserDto,
   },
@@ -26,7 +24,7 @@ import { SignupDto } from '../../auth/dto/signup.dto';
     id: { type: 'uuid', primary: true, disabled: false, field: 'id' },
   },
   routes: {
-    exclude: ['replaceOneBase', 'createManyBase'],
+    exclude: ['replaceOneBase', 'createManyBase', 'createOneBase'],
   },
   query: {
     join: {
@@ -59,7 +57,7 @@ export class UserController implements CrudController<User> {
   @UseInterceptors(MapInterceptor(User, GetUserDto, { isArray: true }))
   async getMany(
     @ParsedRequest() request: CrudRequest,
-  ): Promise<GetManyDefaultResponse<GetUserDto> | GetUserDto[] | undefined> {
+  ): Promise<GetManyDefaultResponse<GetUserDto> | GetUserDto[]> {
     return await this.service.getMany(request);
   }
 

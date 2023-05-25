@@ -10,6 +10,7 @@ import {
   Crud,
   CrudController,
   CrudRequest,
+  GetManyDefaultResponse,
   Override,
   ParsedRequest,
 } from '@nestjsx/crud';
@@ -52,10 +53,17 @@ export class GroupController implements CrudController<Group> {
   @Override()
   @ApiResponse({ type: GetGroupDto })
   @UseInterceptors(MapInterceptor(Group, GetGroupDto))
-  async getOne(
-    @ParsedRequest() query: CrudRequest,
-  ): Promise<GetGroupDto | undefined> {
+  async getOne(@ParsedRequest() query: CrudRequest): Promise<GetGroupDto> {
     return this.service.getOne(query);
+  }
+
+  @Override()
+  @ApiResponse({ type: GetGroupDto, isArray: true })
+  @UseInterceptors(MapInterceptor(Group, GetGroupDto, { isArray: true }))
+  async getMany(
+    @ParsedRequest() query: CrudRequest,
+  ): Promise<GetManyDefaultResponse<GetGroupDto> | GetGroupDto[]> {
+    return this.service.getMany(query);
   }
 
   @Override()
@@ -71,7 +79,7 @@ export class GroupController implements CrudController<Group> {
   async updateOne(
     @ParsedRequest() query: CrudRequest,
     @Body() group: UpdateGroupDto,
-  ): Promise<any> {
+  ): Promise<GetGroupDto> {
     return this.service.updateOne(query, group);
   }
 }

@@ -54,8 +54,18 @@ export class ItemController implements CrudController<Item> {
   @Override()
   @ApiResponse({ type: GetItemDto })
   @UseInterceptors(MapInterceptor(Item, GetItemDto))
-  getOne(@ParsedRequest() query: CrudRequest): Promise<GetItemDto> | undefined {
+  getOne(@ParsedRequest() query: CrudRequest): Promise<GetItemDto> {
     return this.service.getOne(query);
+  }
+
+  @Override()
+  @ApiResponse({ type: GetItemDto })
+  @UseInterceptors(MapInterceptor(Item, GetItemDto))
+  updateOne(
+    @ParsedRequest() query: CrudRequest,
+    @Body() item: UpdateItemDto,
+  ): Promise<GetItemDto> {
+    return this.service.updateOne(query, item);
   }
 
   @Override()
@@ -63,7 +73,7 @@ export class ItemController implements CrudController<Item> {
   @UseInterceptors(MapInterceptor(Item, GetItemDto, { isArray: true }))
   async getMany(
     @ParsedRequest() query: CrudRequest,
-  ): Promise<GetManyDefaultResponse<GetItemDto> | GetItemDto[] | undefined> {
+  ): Promise<GetManyDefaultResponse<GetItemDto> | GetItemDto[]> {
     return this.service.getMany(query);
   }
 }

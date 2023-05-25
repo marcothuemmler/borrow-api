@@ -73,9 +73,7 @@ export class CategoryController implements CrudController<Category> {
   @Override()
   @ApiResponse({ type: GetCategoryDto })
   @UseInterceptors(MapInterceptor(Category, GetCategoryDto))
-  async getOne(
-    @ParsedRequest() request: CrudRequest,
-  ): Promise<GetCategoryDto | undefined> {
+  async getOne(@ParsedRequest() request: CrudRequest): Promise<GetCategoryDto> {
     return this.service.getOne(request);
   }
 
@@ -84,9 +82,7 @@ export class CategoryController implements CrudController<Category> {
   @UseInterceptors(MapInterceptor(Category, GetCategoryDto, { isArray: true }))
   async getMany(
     @ParsedRequest() request: CrudRequest,
-  ): Promise<
-    GetManyDefaultResponse<GetCategoryDto> | GetCategoryDto[] | undefined
-  > {
+  ): Promise<GetManyDefaultResponse<GetCategoryDto> | GetCategoryDto[]> {
     return this.service.getMany(request);
   }
 }
