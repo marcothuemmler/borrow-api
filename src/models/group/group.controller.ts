@@ -8,6 +8,7 @@ import {
   Post,
   Put,
   Query,
+  UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
 import { GroupService } from './group.service';
@@ -18,6 +19,7 @@ import { MapInterceptor } from '@automapper/nestjs';
 import { Group } from './group.entity';
 import { UpdateGroupDto } from './dto/updateGroup.dto';
 import { QueryGroupDto } from './dto/queryGroupDto';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('group')
 @ApiTags('Group')
@@ -64,5 +66,19 @@ export class GroupController {
       throw new NotFoundException('Group does not exist!');
     }
     return this.groupService.delete(id);
+  }
+
+  @Put('cover/:id')
+  @UseInterceptors(FileInterceptor('file'))
+  async putGroupCover(
+    @Param('id') id: string,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    const group = await this.groupService.findOne(id);
+    if (!group) {
+      throw new NotFoundException('Group does not exist!');
+    }
+    // TODO: store image
+    console.log(file);
   }
 }
