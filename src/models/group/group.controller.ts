@@ -12,7 +12,13 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { GroupService } from './group.service';
-import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiConsumes,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { CreateGroupDto } from './dto/createGroup.dto';
 import { GetGroupDto } from './dto/getGroup.dto';
 import { MapInterceptor } from '@automapper/nestjs';
@@ -69,6 +75,18 @@ export class GroupController {
   }
 
   @Put('cover/:id')
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        file: {
+          type: 'string',
+          format: 'binary',
+        },
+      },
+    },
+  })
   @UseInterceptors(FileInterceptor('file'))
   async putGroupCover(
     @Param('id') id: string,
