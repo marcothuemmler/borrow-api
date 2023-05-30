@@ -33,6 +33,9 @@ export class Group {
   @Column({ nullable: true })
   description: string;
 
+  @AutoMap()
+  imageUrl: string;
+
   @AutoMap(() => [User])
   @ManyToMany(() => User, (user) => user.groups)
   @JoinTable({ name: 'group_members' })

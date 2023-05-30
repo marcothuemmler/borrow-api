@@ -24,6 +24,15 @@ import { QueryUserDto } from './dto/queryUser.dto';
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
+  @Get('current-user')
+  @ApiResponse({ type: GetUserDto })
+  async findCurrentUser(
+    @GetCurrentUserId() id: string,
+    @Query() query: QueryUserDto,
+  ) {
+    return await this.userService.findOneWithGroupsAndGroupImages(id, query);
+  }
+
   //get by id
   @Get(':id')
   @ApiResponse({ type: GetUserDto })
@@ -32,19 +41,10 @@ export class UserController {
     return await this.userService.findOne(id);
   }
 
-  @Get('auth/current-user')
-  @ApiResponse({ type: GetUserDto })
-  @UseInterceptors(MapInterceptor(User, GetUserDto))
-  async findCurrentUser(
-    @GetCurrentUserId() id: string,
-    @Query() query: QueryUserDto,
-  ) {
-    return await this.userService.findOne(id, query);
-  }
-
   //update user
   @Put(':id')
   @ApiResponse({ type: GetUserDto })
+  @UseInterceptors(MapInterceptor(User, GetUserDto))
   async update(
     @Param('id') id: string,
     @Body() user: UpdateUserDto,
