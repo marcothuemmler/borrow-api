@@ -88,7 +88,7 @@ export class GroupController {
     },
   })
   @UseInterceptors(FileInterceptor('file'))
-  async putGroupCover(
+  async putGroupImage(
     @Param('id') id: string,
     @UploadedFile() file: Express.Multer.File,
   ) {
