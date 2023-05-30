@@ -7,6 +7,8 @@ import { Mapper } from '@automapper/core';
 import { SignupDto } from '../../auth/dto/signup.dto';
 import * as argon2 from 'argon2';
 import { QueryUserDto } from './dto/queryUser.dto';
+import { GetUserDto } from './dto/getUser.dto';
+import { MinioService } from 'nestjs-minio-client';
 
 @Injectable()
 export class UserService {
@@ -15,6 +17,7 @@ export class UserService {
     private userRepository: Repository<User>,
     @InjectMapper()
     private readonly classMapper: Mapper,
+    private readonly minioService: MinioService,
   ) {}
 
   async findOne(id: string, query?: QueryUserDto): Promise<User> {
@@ -26,6 +29,38 @@ export class UserService {
       where: { id },
       relations: relations,
     });
+  }
+
+  async findOneWithGroupsAndGroupImages(
+    id: string,
+    query?: QueryUserDto,
+  ): Promise<GetUserDto> {
+    let relations = query?.relations;
+    if (relations && !Array.isArray(relations)) {
+      relations = [relations];
+    }
+    const user = await this.userRepository.findOneOrFail({
+      where: { id },
+      relations: relations,
+    });
+    const userDto = this.classMapper.map(user, User, GetUserDto);
+    if (userDto.groups) {
+      for (const group of userDto.groups) {
+        try {
+          const objectName = `group/${group.id}/cover`;
+          await this.minioService.client.statObject(
+            process.env.MINIO_BUCKET_NAME,
+            objectName,
+          );
+          group.imageUrl = await this.minioService.client.presignedUrl(
+            'GET',
+            process.env.MINIO_BUCKET_NAME,
+            objectName,
+          );
+        } catch (ignored) {}
+      }
+    }
+    return userDto;
   }
 
   async findOneByEmail(email: string): Promise<User | null> {

@@ -96,7 +96,6 @@ export class GroupController {
     if (!group) {
       throw new NotFoundException('Group does not exist!');
     }
-    // TODO: store image
-    console.log(file);
+    await this.groupService.putGroupImage(id, file);
   }
 }

@@ -2,6 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';
+import { MinioClient, MinioService } from 'nestjs-minio-client';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -12,6 +13,10 @@ async function bootstrap() {
       forbidNonWhitelisted: true,
     }),
   );
+  const minioClient: MinioClient = app.get(MinioService).client;
+  if (!(await minioClient.bucketExists(process.env.MINIO_BUCKET_NAME))) {
+    await minioClient.makeBucket(process.env.MINIO_BUCKET_NAME);
+  }
   app.enableCors({ origin: process.env.CORS_ORIGIN });
   const config = new DocumentBuilder()
     .setTitle('borrow.app API')
