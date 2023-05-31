@@ -10,7 +10,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AutomapperModule } from '@automapper/nestjs';
 import { classes } from '@automapper/classes';
 import { AuthModule } from './auth/auth.module';
-import { MinioModule } from 'nestjs-minio-client';
+import { StorageModule } from './modules/storage/storage.module';
 
 @Module({
   imports: [
@@ -30,14 +30,7 @@ import { MinioModule } from 'nestjs-minio-client';
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
       synchronize: true,
     }),
-    MinioModule.register({
-      isGlobal: true,
-      endPoint: process.env.MINIO_HOST,
-      port: parseInt(process.env.MINIO_PORT),
-      useSSL: process.env.MINIO_USE_SSL === 'true',
-      accessKey: process.env.MINIO_ACCESS_KEY,
-      secretKey: process.env.MINIO_SECRET_KEY,
-    }),
+    StorageModule,
     AuthModule,
   ],
   controllers: [AppController],

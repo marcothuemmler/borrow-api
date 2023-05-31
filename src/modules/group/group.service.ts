@@ -6,8 +6,8 @@ import { User } from '../user/user.entity';
 import { CreateGroupDto } from './dto/createGroup.dto';
 import { InjectMapper } from '@automapper/nestjs';
 import { Mapper } from '@automapper/core';
-import { QueryGroupDto } from './dto/queryGroupDto';
-import { MinioService } from 'nestjs-minio-client';
+import { QueryGroupDto } from './dto/queryGroup.dto';
+import { StorageService } from '../storage/storage.service';
 
 @Injectable()
 export class GroupService {
@@ -18,7 +18,7 @@ export class GroupService {
     private userRepository: Repository<User>,
     @InjectMapper()
     private readonly classMapper: Mapper,
-    private readonly minioService: MinioService,
+    private readonly storageService: StorageService,
   ) {}
 
   async findOne(id: string, query?: QueryGroupDto): Promise<Group> {
@@ -31,14 +31,9 @@ export class GroupService {
       relations: relations,
     });
     // const groupDto = await this.classMapper.mapAsync(group, Group, GetGroupDto);
-    // try {
-    //   await this.minioService.client.statObject('borrow', `/group/${id}/cover`);
-    //   groupDto.imageUrl = await this.minioService.client.presignedUrl(
-    //     'GET',
-    //     'borrow',
-    //     `/group/${id}/cover`,
-    //   );
-    // } catch (error) {}
+    // groupDto.imageUrl = await this.minioService.getPresignedUrlIfExists(
+    //   `/group/${id}/cover`,
+    // );
     // return groupDto;
   }
 
@@ -61,12 +56,6 @@ export class GroupService {
   }
 
   async putGroupImage(id: string, file: Express.Multer.File) {
-    return await this.minioService.client.putObject(
-      process.env.MINIO_BUCKET_NAME,
-      `group/${id}/cover`,
-      file.buffer,
-      file.size,
-      { 'content-type': file.mimetype },
-    );
+    return await this.storageService.putObject(`group/${id}/cover`, file);
   }
 }

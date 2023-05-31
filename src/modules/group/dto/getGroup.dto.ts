@@ -20,8 +20,8 @@ export class GetGroupDto {
   @ApiProperty({ type: String, nullable: true, example: 'Group description' })
   description: string;
 
-  @ApiPropertyOptional({ type: String, nullable: true })
-  imageUrl: string;
+  @ApiPropertyOptional({ type: String })
+  imageUrl?: string;
 
   @AutoMap(() => [GetCategoryDto])
   @ApiPropertyOptional({ type: () => GetCategoryDto, isArray: true })

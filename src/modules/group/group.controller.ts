@@ -24,7 +24,7 @@ import { GetGroupDto } from './dto/getGroup.dto';
 import { MapInterceptor } from '@automapper/nestjs';
 import { Group } from './group.entity';
 import { UpdateGroupDto } from './dto/updateGroup.dto';
-import { QueryGroupDto } from './dto/queryGroupDto';
+import { QueryGroupDto } from './dto/queryGroup.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('group')

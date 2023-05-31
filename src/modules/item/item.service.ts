@@ -32,13 +32,6 @@ export class ItemService {
     });
   }
 
-  async findByGroupId(groupId: string): Promise<Item[]> {
-    return await this.itemRepository.find({
-      where: { group: { id: groupId } },
-      relations: ['owner', 'category'],
-    });
-  }
-
   async create(item: CreateItemDto): Promise<Item> {
     const newItem = this.itemRepository.create(item);
     newItem.group = await this.groupRepository.findOneByOrFail({
