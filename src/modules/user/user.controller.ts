@@ -45,11 +45,10 @@ export class UserController implements CrudController<User> {
 
   @Override()
   @ApiResponse({ type: GetUserDto })
-  @UseInterceptors(MapInterceptor(User, GetUserDto))
   async getOne(
     @ParsedRequest() request: CrudRequest,
   ): Promise<GetUserDto | null> {
-    return await this.service.getOne(request);
+    return await this.service.findOneWithGroupsAndGroupImages(request);
   }
 
   @Override()

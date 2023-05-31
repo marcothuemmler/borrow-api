@@ -1,15 +1,16 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { GroupModule } from './models/group/group.module';
-import { UserModule } from './models/user/user.module';
-import { ItemModule } from './models/item/item.module';
-import { CategoryModule } from './models/category/category.module';
+import { GroupModule } from './modules/group/group.module';
+import { UserModule } from './modules/user/user.module';
+import { ItemModule } from './modules/item/item.module';
+import { CategoryModule } from './modules/category/category.module';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AutomapperModule } from '@automapper/nestjs';
 import { classes } from '@automapper/classes';
 import { AuthModule } from './auth/auth.module';
+import { StorageModule } from './modules/storage/storage.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { AuthModule } from './auth/auth.module';
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
       synchronize: true,
     }),
+    StorageModule,
     AuthModule,
   ],
   controllers: [AppController],

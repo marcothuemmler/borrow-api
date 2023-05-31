@@ -1,15 +1,30 @@
-import { Body, Controller, UseInterceptors } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Put,
+  UploadedFile,
+  UseInterceptors,
+} from '@nestjs/common';
 import { GroupService } from './group.service';
-import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiConsumes,
+  ApiParam,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { CreateGroupDto } from './dto/createGroup.dto';
 import { GetGroupDto } from './dto/getGroup.dto';
 import { MapInterceptor } from '@automapper/nestjs';
 import { Group } from './group.entity';
 import { UpdateGroupDto } from './dto/updateGroup.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
 import {
   Crud,
   CrudController,
   CrudRequest,
+  CrudRequestInterceptor,
   GetManyDefaultResponse,
   Override,
   ParsedRequest,
@@ -87,5 +102,29 @@ export class GroupController implements CrudController<Group> {
     @Body() group: UpdateGroupDto,
   ): Promise<GetGroupDto> {
     return this.service.updateOne(query, group);
+  }
+
+  @UseInterceptors(FileInterceptor('file'), CrudRequestInterceptor)
+  @ApiParam({ name: 'id', type: 'string' })
+  @Put('cover/:id')
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      required: ['file'],
+      properties: {
+        file: {
+          required: ['file'],
+          type: 'string',
+          format: 'binary',
+        },
+      },
+    },
+  })
+  async putGroupImage(
+    @ParsedRequest() request: CrudRequest,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    await this.service.putGroupImage(request, file);
   }
 }

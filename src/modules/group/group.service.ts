@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Equal, Repository } from 'typeorm';
 import { Group } from './group.entity';
@@ -7,6 +7,8 @@ import { CreateGroupDto } from './dto/createGroup.dto';
 import { InjectMapper } from '@automapper/nestjs';
 import { Mapper } from '@automapper/core';
 import { TypeOrmCrudService } from '@nestjsx/crud-typeorm';
+import { StorageService } from '../storage/storage.service';
+import { CrudRequest } from '@nestjsx/crud';
 
 @Injectable()
 export class GroupService extends TypeOrmCrudService<Group> {
@@ -17,6 +19,7 @@ export class GroupService extends TypeOrmCrudService<Group> {
     private userRepository: Repository<User>,
     @InjectMapper()
     private readonly classMapper: Mapper,
+    private readonly storageService: StorageService,
   ) {
     super(groupRepository);
   }
@@ -28,5 +31,13 @@ export class GroupService extends TypeOrmCrudService<Group> {
     const newGroup = this.groupRepository.create(group);
     newGroup.members = [owner];
     return this.groupRepository.save(newGroup);
+  }
+
+  async putGroupImage(request: CrudRequest, file: Express.Multer.File) {
+    const group = await this.getOne(request);
+    if (!group) {
+      throw new NotFoundException('Group does not exist!');
+    }
+    return await this.storageService.putObject(`group/${group.id}/cover`, file);
   }
 }

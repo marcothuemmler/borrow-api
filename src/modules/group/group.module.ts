@@ -5,9 +5,10 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Group } from './group.entity';
 import { User } from '../user/user.entity';
 import { GroupProfile } from './profile/group.profile';
+import { StorageModule } from '../storage/storage.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Group, User])],
+  imports: [TypeOrmModule.forFeature([Group, User]), StorageModule],
   controllers: [GroupController],
   providers: [GroupService, GroupProfile],
 })

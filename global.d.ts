@@ -11,6 +11,12 @@ declare global {
       PG_DB: string;
       ACCESS_TOKEN_SECRET: string;
       REFRESH_TOKEN_SECRET: string;
+      MINIO_HOST: string;
+      MINIO_PORT: string;
+      MINIO_ACCESS_KEY: string;
+      MINIO_SECRET_KEY: string;
+      MINIO_USE_SSL: string;
+      MINIO_BUCKET_NAME: string;
     }
   }
 }
