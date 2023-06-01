@@ -1,6 +1,7 @@
 import { AutoMap } from '@automapper/classes';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { GetItemDto } from '../../item/dto/getItem.dto';
+import { GetGroupDto } from '../../group/dto/getGroup.dto';
 
 export class GetCategoryDto {
   @AutoMap()
@@ -26,7 +27,15 @@ export class GetCategoryDto {
   @ApiPropertyOptional()
   parent: GetCategoryDto | null;
 
+  @AutoMap(() => GetGroupDto)
+  @ApiPropertyOptional({ type: () => GetGroupDto })
+  group: GetGroupDto;
+
   @AutoMap(() => [GetItemDto])
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ type: GetItemDto, isArray: true })
   items: GetItemDto[];
+
+  @AutoMap(() => [GetCategoryDto])
+  @ApiPropertyOptional({ type: GetCategoryDto, isArray: true })
+  children: GetCategoryDto[];
 }

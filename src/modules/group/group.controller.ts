@@ -1,13 +1,7 @@
 import {
   Body,
   Controller,
-  Delete,
-  Get,
-  NotFoundException,
-  Param,
-  Post,
   Put,
-  Query,
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
@@ -16,6 +10,7 @@ import {
   ApiBearerAuth,
   ApiBody,
   ApiConsumes,
+  ApiParam,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
@@ -24,78 +19,112 @@ import { GetGroupDto } from './dto/getGroup.dto';
 import { MapInterceptor } from '@automapper/nestjs';
 import { Group } from './group.entity';
 import { UpdateGroupDto } from './dto/updateGroup.dto';
-import { QueryGroupDto } from './dto/queryGroup.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
+import {
+  Crud,
+  CrudController,
+  CrudRequest,
+  CrudRequestInterceptor,
+  GetManyDefaultResponse,
+  Override,
+  ParsedRequest,
+} from '@nestjsx/crud';
 
-@Controller('group')
-@ApiTags('Group')
+@Crud({
+  model: {
+    type: Group,
+  },
+  dto: {
+    create: CreateGroupDto,
+    update: UpdateGroupDto,
+    replace: UpdateGroupDto,
+  },
+  params: {
+    id: { type: 'uuid', primary: true, disabled: false, field: 'id' },
+  },
+  routes: {
+    exclude: ['replaceOneBase', 'createManyBase'],
+  },
+  query: {
+    join: {
+      members: {
+        eager: false,
+      },
+      items: {
+        eager: false,
+      },
+      'items.category': {
+        eager: false,
+      },
+      'items.owner': {
+        eager: false,
+      },
+      categories: {
+        eager: false,
+      },
+    },
+  },
+})
+@Controller('groups')
+@ApiTags('Groups')
 @ApiBearerAuth()
-export class GroupController {
-  constructor(private readonly groupService: GroupService) {}
+export class GroupController implements CrudController<Group> {
+  constructor(public service: GroupService) {}
 
-  //get by id
-  @Get(':id')
+  @Override()
   @ApiResponse({ type: GetGroupDto })
   @UseInterceptors(MapInterceptor(Group, GetGroupDto))
-  async findOne(
-    @Param('id') id: string,
-    @Query() query: QueryGroupDto,
-  ): Promise<GetGroupDto> {
-    return await this.groupService.findOne(id, query);
+  async getOne(@ParsedRequest() query: CrudRequest): Promise<GetGroupDto> {
+    return this.service.getOne(query);
   }
 
-  //create group
-  @Post()
-  @ApiResponse({ type: GetGroupDto })
-  @UseInterceptors(MapInterceptor(Group, GetGroupDto))
-  async create(@Body() group: CreateGroupDto): Promise<GetGroupDto> {
-    return this.groupService.create(group);
+  @Override()
+  @ApiResponse({ type: GetGroupDto, isArray: true })
+  @UseInterceptors(MapInterceptor(Group, GetGroupDto, { isArray: true }))
+  async getMany(
+    @ParsedRequest() query: CrudRequest,
+  ): Promise<GetManyDefaultResponse<GetGroupDto> | GetGroupDto[]> {
+    return this.service.getMany(query);
   }
 
-  //update group
-  @Put(':id')
+  @Override()
   @ApiResponse({ type: GetGroupDto })
   @UseInterceptors(MapInterceptor(Group, GetGroupDto))
-  async update(
-    @Param('id') id: string,
+  async createOne(@Body() group: CreateGroupDto): Promise<GetGroupDto> {
+    return this.service.create(group);
+  }
+
+  @Override()
+  @ApiResponse({ type: GetGroupDto })
+  @UseInterceptors(MapInterceptor(Group, GetGroupDto))
+  async updateOne(
+    @ParsedRequest() query: CrudRequest,
     @Body() group: UpdateGroupDto,
-  ): Promise<any> {
-    return this.groupService.update(id, group);
+  ): Promise<GetGroupDto> {
+    return this.service.updateOne(query, group);
   }
 
-  //delete group
-  @Delete(':id')
-  async delete(@Param('id') id: string): Promise<any> {
-    //handle error if group does not exist
-    const group = await this.groupService.findOne(id);
-    if (!group) {
-      throw new NotFoundException('Group does not exist!');
-    }
-    return this.groupService.delete(id);
-  }
-
+  @UseInterceptors(FileInterceptor('file'), CrudRequestInterceptor)
+  @ApiParam({ name: 'id', type: 'string' })
   @Put('cover/:id')
   @ApiConsumes('multipart/form-data')
   @ApiBody({
     schema: {
       type: 'object',
+      required: ['file'],
       properties: {
         file: {
+          required: ['file'],
           type: 'string',
           format: 'binary',
         },
       },
     },
   })
-  @UseInterceptors(FileInterceptor('file'))
   async putGroupImage(
-    @Param('id') id: string,
+    @ParsedRequest() request: CrudRequest,
     @UploadedFile() file: Express.Multer.File,
   ) {
-    const group = await this.groupService.findOne(id);
-    if (!group) {
-      throw new NotFoundException('Group does not exist!');
-    }
-    await this.groupService.putGroupImage(id, file);
+    await this.service.putGroupImage(request, file);
   }
 }

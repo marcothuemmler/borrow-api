@@ -1,16 +1,17 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DeleteResult, Equal, Repository } from 'typeorm';
+import { Equal, Repository } from 'typeorm';
 import { Group } from './group.entity';
 import { User } from '../user/user.entity';
 import { CreateGroupDto } from './dto/createGroup.dto';
 import { InjectMapper } from '@automapper/nestjs';
 import { Mapper } from '@automapper/core';
-import { QueryGroupDto } from './dto/queryGroup.dto';
+import { TypeOrmCrudService } from '@nestjsx/crud-typeorm';
 import { StorageService } from '../storage/storage.service';
+import { CrudRequest } from '@nestjsx/crud';
 
 @Injectable()
-export class GroupService {
+export class GroupService extends TypeOrmCrudService<Group> {
   constructor(
     @InjectRepository(Group)
     private groupRepository: Repository<Group>,
@@ -19,22 +20,8 @@ export class GroupService {
     @InjectMapper()
     private readonly classMapper: Mapper,
     private readonly storageService: StorageService,
-  ) {}
-
-  async findOne(id: string, query?: QueryGroupDto): Promise<Group> {
-    let relations = query?.relations;
-    if (relations && !Array.isArray(relations)) {
-      relations = [relations];
-    }
-    return await this.groupRepository.findOneOrFail({
-      where: { id },
-      relations: relations,
-    });
-    // const groupDto = await this.classMapper.mapAsync(group, Group, GetGroupDto);
-    // groupDto.imageUrl = await this.minioService.getPresignedUrlIfExists(
-    //   `/group/${id}/cover`,
-    // );
-    // return groupDto;
+  ) {
+    super(groupRepository);
   }
 
   async create(group: CreateGroupDto): Promise<Group> {
@@ -46,16 +33,11 @@ export class GroupService {
     return this.groupRepository.save(newGroup);
   }
 
-  async update(id: string, group: Partial<Group>): Promise<Group> {
-    await this.groupRepository.update(id, group);
-    return this.groupRepository.findOneByOrFail({ id });
-  }
-
-  async delete(id: string): Promise<DeleteResult> {
-    return await this.groupRepository.delete(id);
-  }
-
-  async putGroupImage(id: string, file: Express.Multer.File) {
-    return await this.storageService.putObject(`group/${id}/cover`, file);
+  async putGroupImage(request: CrudRequest, file: Express.Multer.File) {
+    const group = await this.getOne(request);
+    if (!group) {
+      throw new NotFoundException('Group does not exist!');
+    }
+    return await this.storageService.putObject(`group/${group.id}/cover`, file);
   }
 }

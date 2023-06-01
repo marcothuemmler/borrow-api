@@ -1,65 +1,72 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  NotFoundException,
-  Param,
-  Put,
-  Query,
-  UseInterceptors,
-} from '@nestjs/common';
+import { Body, Controller, Param, UseInterceptors } from '@nestjs/common';
 import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UserService } from './user.service';
 import { User } from './user.entity';
 import { UpdateUserDto } from './dto/updateUser.dto';
 import { MapInterceptor } from '@automapper/nestjs';
 import { GetUserDto } from './dto/getUser.dto';
-import { GetCurrentUserId } from '../../common/decorators/get-current-user-id.decorator';
-import { QueryUserDto } from './dto/queryUser.dto';
+import {
+  Crud,
+  CrudController,
+  CrudRequest,
+  GetManyDefaultResponse,
+  Override,
+  ParsedRequest,
+} from '@nestjsx/crud';
 
-@Controller('user')
-@ApiTags('User')
+@Crud({
+  model: { type: User },
+  dto: {
+    update: UpdateUserDto,
+    replace: UpdateUserDto,
+  },
+  params: {
+    id: { type: 'uuid', primary: true, disabled: false, field: 'id' },
+  },
+  routes: {
+    exclude: ['replaceOneBase', 'createManyBase', 'createOneBase'],
+  },
+  query: {
+    join: {
+      groups: {
+        eager: false,
+      },
+      items: {
+        eager: false,
+      },
+    },
+  },
+})
+@Controller('users')
+@ApiTags('Users')
 @ApiBearerAuth()
-export class UserController {
-  constructor(private readonly userService: UserService) {}
+export class UserController implements CrudController<User> {
+  constructor(public service: UserService) {}
 
-  @Get('current-user')
+  @Override()
   @ApiResponse({ type: GetUserDto })
-  async findCurrentUser(
-    @GetCurrentUserId() id: string,
-    @Query() query: QueryUserDto,
-  ) {
-    return await this.userService.findOneWithGroupsAndGroupImages(id, query);
+  async getOne(
+    @ParsedRequest() request: CrudRequest,
+  ): Promise<GetUserDto | null> {
+    return await this.service.findOneWithGroupsAndGroupImages(request);
   }
 
-  //get by id
-  @Get(':id')
+  @Override()
   @ApiResponse({ type: GetUserDto })
-  @UseInterceptors(MapInterceptor(User, GetUserDto))
-  async findOne(@Param('id') id: string): Promise<GetUserDto> {
-    return await this.userService.findOne(id);
+  @UseInterceptors(MapInterceptor(User, GetUserDto, { isArray: true }))
+  async getMany(
+    @ParsedRequest() request: CrudRequest,
+  ): Promise<GetManyDefaultResponse<GetUserDto> | GetUserDto[]> {
+    return await this.service.getMany(request);
   }
 
-  //update user
-  @Put(':id')
+  @Override()
   @ApiResponse({ type: GetUserDto })
   @UseInterceptors(MapInterceptor(User, GetUserDto))
-  async update(
+  async updateOne(
     @Param('id') id: string,
     @Body() user: UpdateUserDto,
-  ): Promise<any> {
-    return this.userService.update(id, user);
-  }
-
-  //delete user
-  @Delete(':id')
-  async delete(@Param('id') id: string): Promise<any> {
-    //handle error if user does not exist
-    const user = await this.userService.findOne(id);
-    if (!user) {
-      throw new NotFoundException('User does not exist!');
-    }
-    return this.userService.delete(id);
+  ): Promise<GetUserDto> {
+    return this.service.update(id, user);
   }
 }

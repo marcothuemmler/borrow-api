@@ -6,7 +6,9 @@ dotenv.config();
 
 @Injectable()
 export class StorageService {
-  constructor(private readonly minioService: MinioService) {}
+  constructor(private readonly minioService: MinioService) {
+    this.makeBucketIfNotExists(process.env.MINIO_BUCKET_NAME).then();
+  }
 
   async makeBucketIfNotExists(bucketName: string) {
     if (!(await this.minioService.client.bucketExists(bucketName))) {
@@ -22,8 +24,7 @@ export class StorageService {
         process.env.MINIO_BUCKET_NAME,
         objectName,
       );
-      return await this.minioService.client.presignedUrl(
-        'GET',
+      return await this.minioService.client.presignedGetObject(
         process.env.MINIO_BUCKET_NAME,
         objectName,
       );

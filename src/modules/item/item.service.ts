@@ -8,10 +8,10 @@ import { CreateItemDto } from './dto/createItem.dto';
 import { User } from '../user/user.entity';
 import { InjectMapper } from '@automapper/nestjs';
 import { Mapper } from '@automapper/core';
-import { UpdateItemDto } from './dto/updateItem.dto';
+import { TypeOrmCrudService } from '@nestjsx/crud-typeorm';
 
 @Injectable()
-export class ItemService {
+export class ItemService extends TypeOrmCrudService<Item> {
   constructor(
     @InjectRepository(Item)
     private itemRepository: Repository<Item>,
@@ -23,13 +23,8 @@ export class ItemService {
     private userRepository: Repository<User>,
     @InjectMapper()
     private readonly classMapper: Mapper,
-  ) {}
-
-  async findOne(id: string): Promise<Item> {
-    return this.itemRepository.findOneOrFail({
-      where: { id },
-      relations: ['owner', 'category'],
-    });
+  ) {
+    super(itemRepository);
   }
 
   async create(item: CreateItemDto): Promise<Item> {
@@ -44,19 +39,6 @@ export class ItemService {
       id: Equal(item.categoryId),
     });
     await this.itemRepository.save(newItem);
-    return this.findOne(newItem.id);
-  }
-
-  async update(id: string, item: UpdateItemDto): Promise<Item> {
-    const newItem = this.itemRepository.create(item);
-    newItem.category = await this.categoryRepository.findOneByOrFail({
-      id: Equal(item.categoryId),
-    });
-    await this.itemRepository.update(id, newItem);
-    return this.findOne(id);
-  }
-
-  async delete(id: string): Promise<void> {
-    await this.itemRepository.delete(id);
+    return this.itemRepository.findOneOrFail({ where: { id: newItem.id } });
   }
 }

@@ -1,48 +1,32 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DeleteResult, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { User } from './user.entity';
 import { InjectMapper } from '@automapper/nestjs';
 import { Mapper } from '@automapper/core';
 import { SignupDto } from '../../auth/dto/signup.dto';
 import * as argon2 from 'argon2';
-import { QueryUserDto } from './dto/queryUser.dto';
+import { TypeOrmCrudService } from '@nestjsx/crud-typeorm';
 import { GetUserDto } from './dto/getUser.dto';
 import { StorageService } from '../storage/storage.service';
+import { CrudRequest } from '@nestjsx/crud';
 
 @Injectable()
-export class UserService {
+export class UserService extends TypeOrmCrudService<User> {
   constructor(
     @InjectRepository(User)
     private userRepository: Repository<User>,
     @InjectMapper()
     private readonly classMapper: Mapper,
     private readonly storageService: StorageService,
-  ) {}
-
-  async findOne(id: string, query?: QueryUserDto): Promise<User> {
-    let relations = query?.relations;
-    if (relations && !Array.isArray(relations)) {
-      relations = [relations];
-    }
-    return await this.userRepository.findOneOrFail({
-      where: { id },
-      relations: relations,
-    });
+  ) {
+    super(userRepository);
   }
 
   async findOneWithGroupsAndGroupImages(
-    id: string,
-    query?: QueryUserDto,
+    request: CrudRequest,
   ): Promise<GetUserDto> {
-    let relations = query?.relations;
-    if (relations && !Array.isArray(relations)) {
-      relations = [relations];
-    }
-    const user = await this.userRepository.findOneOrFail({
-      where: { id },
-      relations: relations,
-    });
+    const user = await super.getOne(request);
     const userDto = this.classMapper.map(user, User, GetUserDto);
     if (userDto.groups) {
       for (const group of userDto.groups) {
@@ -68,10 +52,6 @@ export class UserService {
   async update(id: string, user: Partial<User>): Promise<User> {
     const newUser = this.userRepository.create(user);
     await this.userRepository.update(id, newUser);
-    return this.findOne(id);
-  }
-
-  async delete(id: string): Promise<DeleteResult> {
-    return await this.userRepository.delete(id);
+    return this.userRepository.findOneOrFail({ where: { id } });
   }
 }

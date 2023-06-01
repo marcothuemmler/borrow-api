@@ -2,7 +2,6 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';
-import { StorageService } from './modules/storage/storage.service';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -13,9 +12,6 @@ async function bootstrap() {
       forbidNonWhitelisted: true,
     }),
   );
-  await app
-    .get(StorageService)
-    .makeBucketIfNotExists(process.env.MINIO_BUCKET_NAME);
   app.enableCors({ origin: process.env.CORS_ORIGIN });
   const config = new DocumentBuilder()
     .setTitle('borrow.app API')

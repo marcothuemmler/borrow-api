@@ -22,7 +22,7 @@ export class AuthService {
   }
 
   async refreshTokens(userId: string, refreshToken: string): Promise<Tokens> {
-    const user = await this.userService.findOne(userId);
+    const user = await this.userService.findOne({ where: { id: userId } });
     if (!user || !user.hashedRefreshToken) {
       throw new UnauthorizedException();
     }
