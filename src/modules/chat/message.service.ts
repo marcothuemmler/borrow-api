@@ -28,12 +28,9 @@ export class MessageService {
     return this.classMapper.map(message, Message, GetMessageDto);
   }
 
-  async find(myId: string, otherId: string) {
+  async find(room: string) {
     const messages = await this.messageRepository.find({
-      where: [
-        { sender: { id: myId }, recipient: { id: otherId } },
-        { sender: { id: otherId }, recipient: { id: myId } },
-      ],
+      where: { room },
       relations: ['recipient', 'sender'],
       order: { created_at: 'ASC' },
     });

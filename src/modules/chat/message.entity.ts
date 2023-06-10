@@ -28,4 +28,8 @@ export class Message {
   @AutoMap()
   @Column()
   content: string;
+
+  @AutoMap()
+  @Column()
+  room: string;
 }
