@@ -4,12 +4,17 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Message } from './message.entity';
 import { Repository } from 'typeorm';
 import { User } from '../user/user.entity';
+import { InjectMapper } from '@automapper/nestjs';
+import { Mapper } from '@automapper/core';
+import { GetMessageDto } from './dto/get-message.dto';
 
 @Injectable()
 export class MessageService {
   constructor(
     @InjectRepository(Message) private messageRepository: Repository<Message>,
     @InjectRepository(User) private userRepository: Repository<User>,
+    @InjectMapper()
+    private readonly classMapper: Mapper,
   ) {}
   async create(createMessageDto: CreateMessageDto) {
     const newMessage = this.messageRepository.create(createMessageDto);
@@ -20,12 +25,7 @@ export class MessageService {
       id: createMessageDto.recipientId,
     });
     const message = await this.messageRepository.save(newMessage);
-    return {
-      createdAt: message.created_at,
-      senderId: message.sender.id,
-      recipientId: message.recipient.id,
-      content: message.content,
-    };
+    return this.classMapper.map(message, Message, GetMessageDto);
   }
 
   async find(myId: string, otherId: string) {
@@ -37,15 +37,6 @@ export class MessageService {
       relations: ['recipient', 'sender'],
       order: { created_at: 'ASC' },
     });
-    const messagesDto = [];
-    for (const message of messages) {
-      messagesDto.push({
-        createdAt: message.created_at,
-        senderId: message.sender.id,
-        recipientId: message.recipient.id,
-        content: message.content,
-      });
-    }
-    return messagesDto;
+    return this.classMapper.mapArray(messages, Message, GetMessageDto);
   }
 }

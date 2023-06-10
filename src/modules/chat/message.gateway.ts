@@ -19,7 +19,6 @@ export class MessageGateway {
   async create(@MessageBody() createMessageDto: CreateMessageDto) {
     const message = await this.messageService.create(createMessageDto);
     this.server.emit('message', message);
-    return message;
   }
 
   @SubscribeMessage('findMessages')
