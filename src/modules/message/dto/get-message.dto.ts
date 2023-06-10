@@ -13,7 +13,4 @@ export class GetMessageDto {
 
   @AutoMap()
   content: string;
-
-  @AutoMap()
-  room: string;
 }

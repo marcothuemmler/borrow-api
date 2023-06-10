@@ -7,30 +7,43 @@ import { User } from '../user/user.entity';
 import { InjectMapper } from '@automapper/nestjs';
 import { Mapper } from '@automapper/core';
 import { GetMessageDto } from './dto/get-message.dto';
+import { ChatRoom } from '../chatroom/chatroom.entity';
 
 @Injectable()
 export class MessageService {
   constructor(
     @InjectRepository(Message) private messageRepository: Repository<Message>,
     @InjectRepository(User) private userRepository: Repository<User>,
-    @InjectMapper()
-    private readonly classMapper: Mapper,
+    @InjectRepository(ChatRoom)
+    private chatRoomRepository: Repository<ChatRoom>,
+    @InjectMapper() private readonly classMapper: Mapper,
   ) {}
-  async create(createMessageDto: CreateMessageDto) {
-    const newMessage = this.messageRepository.create(createMessageDto);
+
+  async create(messageDto: CreateMessageDto) {
+    let room = await this.chatRoomRepository.findOneBy({
+      id: messageDto.roomId,
+    });
+    if (!room) {
+      const newRoom = this.chatRoomRepository.create({
+        id: messageDto.roomId,
+      });
+      room = await this.chatRoomRepository.save(newRoom);
+    }
+    const newMessage = this.messageRepository.create(messageDto);
     newMessage.sender = await this.userRepository.findOneByOrFail({
-      id: createMessageDto.senderId,
+      id: messageDto.senderId,
     });
     newMessage.recipient = await this.userRepository.findOneByOrFail({
-      id: createMessageDto.recipientId,
+      id: messageDto.recipientId,
     });
+    newMessage.room = room;
     const message = await this.messageRepository.save(newMessage);
     return this.classMapper.map(message, Message, GetMessageDto);
   }
 
-  async find(room: string) {
+  async find(roomId: string) {
     const messages = await this.messageRepository.find({
-      where: { room },
+      where: { room: { id: roomId } },
       relations: ['recipient', 'sender'],
       order: { created_at: 'ASC' },
     });

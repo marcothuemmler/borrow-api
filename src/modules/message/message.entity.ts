@@ -7,6 +7,7 @@ import {
 } from 'typeorm';
 import { User } from '../user/user.entity';
 import { AutoMap } from '@automapper/classes';
+import { ChatRoom } from '../chatroom/chatroom.entity';
 
 @Entity()
 export class Message {
@@ -29,7 +30,6 @@ export class Message {
   @Column()
   content: string;
 
-  @AutoMap()
-  @Column()
-  room: string;
+  @ManyToOne(() => ChatRoom, (room) => room.messages)
+  room: ChatRoom;
 }

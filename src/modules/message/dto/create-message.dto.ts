@@ -9,7 +9,7 @@ export class CreateMessageDto {
 
   @IsString()
   @IsNotEmpty()
-  room: string;
+  roomId: string;
 
   @IsString()
   @IsNotEmpty()
