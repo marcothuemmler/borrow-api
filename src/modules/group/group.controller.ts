@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Param,
   Put,
   UploadedFile,
   UseInterceptors,
@@ -126,5 +127,10 @@ export class GroupController implements CrudController<Group> {
     @UploadedFile() file: Express.Multer.File,
   ) {
     await this.service.putGroupImage(request, file);
+  }
+
+  @Put(':id/members/:userId')
+  async addMember(@Param('id') id: string, @Param('userId') userId: string) {
+    await this.service.addMember(id, userId);
   }
 }

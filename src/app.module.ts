@@ -11,6 +11,7 @@ import { AutomapperModule } from '@automapper/nestjs';
 import { classes } from '@automapper/classes';
 import { AuthModule } from './auth/auth.module';
 import { StorageModule } from './modules/storage/storage.module';
+import { MessageModule } from './modules/chat/message.module';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { StorageModule } from './modules/storage/storage.module';
     }),
     StorageModule,
     AuthModule,
+    MessageModule,
   ],
   controllers: [AppController],
   providers: [AppService],

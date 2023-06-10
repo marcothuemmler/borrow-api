@@ -40,4 +40,16 @@ export class GroupService extends TypeOrmCrudService<Group> {
     }
     return await this.storageService.putObject(`group/${group.id}/cover`, file);
   }
+
+  async addMember(id: string, userId: string) {
+    const group = await this.groupRepository.findOneOrFail({
+      where: { id },
+      relations: ['members'],
+    });
+    const user = await this.userRepository.findOneByOrFail({
+      id: Equal(userId),
+    });
+    group.members.push(user);
+    await this.groupRepository.save(group);
+  }
 }
