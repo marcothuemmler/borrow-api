@@ -30,6 +30,9 @@ export class Message {
   @Column()
   content: string;
 
-  @ManyToOne(() => ChatRoom, (room) => room.messages)
+  @ManyToOne(() => ChatRoom, (room) => room.messages, {
+    cascade: true,
+    onDelete: 'CASCADE',
+  })
   room: ChatRoom;
 }

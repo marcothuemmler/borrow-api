@@ -45,9 +45,7 @@ export class UserController implements CrudController<User> {
 
   @Override()
   @ApiResponse({ type: GetUserDto })
-  async getOne(
-    @ParsedRequest() request: CrudRequest,
-  ): Promise<GetUserDto | null> {
+  async getOne(@ParsedRequest() request: CrudRequest): Promise<GetUserDto> {
     return await this.service.findOneWithGroupsAndGroupImages(request);
   }
 

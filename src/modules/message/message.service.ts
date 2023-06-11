@@ -20,23 +20,14 @@ export class MessageService {
   ) {}
 
   async create(messageDto: CreateMessageDto) {
-    let room = await this.chatRoomRepository.findOneBy({
-      id: messageDto.roomId,
-    });
-    if (!room) {
-      const newRoom = this.chatRoomRepository.create({
-        id: messageDto.roomId,
-      });
-      room = await this.chatRoomRepository.save(newRoom);
-    }
     const newMessage = this.messageRepository.create(messageDto);
+    newMessage.room = this.chatRoomRepository.create({ id: messageDto.roomId });
     newMessage.sender = await this.userRepository.findOneByOrFail({
       id: messageDto.senderId,
     });
     newMessage.recipient = await this.userRepository.findOneByOrFail({
       id: messageDto.recipientId,
     });
-    newMessage.room = room;
     const message = await this.messageRepository.save(newMessage);
     return this.classMapper.map(message, Message, GetMessageDto);
   }

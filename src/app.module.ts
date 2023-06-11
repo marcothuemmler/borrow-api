@@ -17,10 +17,14 @@ import { ChatroomModule } from './modules/chatroom/chatroom.module';
 @Module({
   imports: [
     ConfigModule.forRoot(),
+    AuthModule,
+    StorageModule,
     GroupModule,
     UserModule,
     ItemModule,
     CategoryModule,
+    MessageModule,
+    ChatroomModule,
     AutomapperModule.forRoot({ strategyInitializer: classes() }),
     TypeOrmModule.forRoot({
       type: process.env.DB_TYPE,
@@ -32,10 +36,6 @@ import { ChatroomModule } from './modules/chatroom/chatroom.module';
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
       synchronize: true,
     }),
-    StorageModule,
-    AuthModule,
-    MessageModule,
-    ChatroomModule,
   ],
   controllers: [AppController],
   providers: [AppService],
