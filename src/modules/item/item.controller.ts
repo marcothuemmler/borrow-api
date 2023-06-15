@@ -53,9 +53,8 @@ export class ItemController implements CrudController<Item> {
 
   @Override()
   @ApiResponse({ type: GetItemDto })
-  @UseInterceptors(MapInterceptor(Item, GetItemDto))
   getOne(@ParsedRequest() query: CrudRequest): Promise<GetItemDto> {
-    return this.service.getOne(query);
+    return this.service.getOneWithOwnerAvatar(query);
   }
 
   @Override()

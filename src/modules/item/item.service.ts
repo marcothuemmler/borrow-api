@@ -9,6 +9,9 @@ import { User } from '../user/user.entity';
 import { InjectMapper } from '@automapper/nestjs';
 import { Mapper } from '@automapper/core';
 import { TypeOrmCrudService } from '@nestjsx/crud-typeorm';
+import { CrudRequest } from '@nestjsx/crud';
+import { GetItemDto } from './dto/getItem.dto';
+import { StorageService } from '../storage/storage.service';
 
 @Injectable()
 export class ItemService extends TypeOrmCrudService<Item> {
@@ -23,6 +26,7 @@ export class ItemService extends TypeOrmCrudService<Item> {
     private userRepository: Repository<User>,
     @InjectMapper()
     private readonly classMapper: Mapper,
+    private readonly storageService: StorageService,
   ) {
     super(itemRepository);
   }
@@ -40,5 +44,14 @@ export class ItemService extends TypeOrmCrudService<Item> {
     });
     await this.itemRepository.save(newItem);
     return this.itemRepository.findOneOrFail({ where: { id: newItem.id } });
+  }
+
+  async getOneWithOwnerAvatar(req: CrudRequest): Promise<GetItemDto> {
+    const item = await super.getOne(req);
+    const dto = this.classMapper.map(item, Item, GetItemDto);
+    dto.owner.imageUrl = await this.storageService.getPresignedUrlIfExists(
+      `user/${item.owner.id}/cover`,
+    );
+    return dto;
   }
 }
