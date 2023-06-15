@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './user.entity';
@@ -10,12 +10,15 @@ import { TypeOrmCrudService } from '@nestjsx/crud-typeorm';
 import { GetUserDto } from './dto/getUser.dto';
 import { StorageService } from '../storage/storage.service';
 import { CrudRequest } from '@nestjsx/crud';
+import { Group } from '../group/group.entity';
 
 @Injectable()
 export class UserService extends TypeOrmCrudService<User> {
   constructor(
     @InjectRepository(User)
     private userRepository: Repository<User>,
+    @InjectRepository(Group)
+    private groupRepository: Repository<Group>,
     @InjectMapper()
     private readonly classMapper: Mapper,
     private readonly storageService: StorageService,
@@ -53,5 +56,35 @@ export class UserService extends TypeOrmCrudService<User> {
     const newUser = this.userRepository.create(user);
     await this.userRepository.update(id, newUser);
     return this.userRepository.findOneOrFail({ where: { id } });
+  }
+
+  async delete(id: string) {
+    const user = await this.userRepository.findOneOrFail({
+      where: { id },
+      relations: ['groups', 'groups.members'],
+    });
+    for (const group of user.groups) {
+      if (group.members.length === 1) {
+        await this.groupRepository.remove(group);
+      }
+    }
+    await this.userRepository.remove(user);
+  }
+
+  async putUserImage(request: CrudRequest, file: Express.Multer.File) {
+    const user = await this.getOne(request);
+    if (!user) {
+      throw new NotFoundException('User does not exist!');
+    }
+    return await this.storageService.putObject(`user/${user.id}/cover`, file);
+  }
+
+  async findOneWithProfileImage(request: CrudRequest) {
+    const user = await super.getOne(request);
+    const userDto = this.classMapper.map(user, User, GetUserDto);
+    userDto.imageUrl = await this.storageService.getPresignedUrlIfExists(
+      `user/${user.id}/cover`,
+    );
+    return userDto;
   }
 }

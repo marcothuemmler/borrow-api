@@ -1,5 +1,20 @@
-import { Body, Controller, Param, UseInterceptors } from '@nestjs/common';
-import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Put,
+  UploadedFile,
+  UseInterceptors,
+} from '@nestjs/common';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiConsumes,
+  ApiParam,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { UserService } from './user.service';
 import { User } from './user.entity';
 import { UpdateUserDto } from './dto/updateUser.dto';
@@ -9,10 +24,12 @@ import {
   Crud,
   CrudController,
   CrudRequest,
+  CrudRequestInterceptor,
   GetManyDefaultResponse,
   Override,
   ParsedRequest,
 } from '@nestjsx/crud';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Crud({
   model: { type: User },
@@ -46,6 +63,14 @@ export class UserController implements CrudController<User> {
   @Override()
   @ApiResponse({ type: GetUserDto })
   async getOne(@ParsedRequest() request: CrudRequest): Promise<GetUserDto> {
+    return await this.service.findOneWithProfileImage(request);
+  }
+
+  @Get('/with-groups/:id')
+  @UseInterceptors(CrudRequestInterceptor)
+  async getOneWithGroupsAndGroupImages(
+    @ParsedRequest() request: CrudRequest,
+  ): Promise<GetUserDto> {
     return await this.service.findOneWithGroupsAndGroupImages(request);
   }
 
@@ -66,5 +91,34 @@ export class UserController implements CrudController<User> {
     @Body() user: UpdateUserDto,
   ): Promise<GetUserDto> {
     return this.service.update(id, user);
+  }
+
+  @UseInterceptors(FileInterceptor('file'), CrudRequestInterceptor)
+  @ApiParam({ name: 'id', type: 'string' })
+  @Put('cover/:id')
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      required: ['file'],
+      properties: {
+        file: {
+          required: ['file'],
+          type: 'string',
+          format: 'binary',
+        },
+      },
+    },
+  })
+  async putUserImage(
+    @ParsedRequest() request: CrudRequest,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    await this.service.putUserImage(request, file);
+  }
+
+  @Override()
+  async deleteOne(@Param('id') id: string) {
+    return this.service.delete(id);
   }
 }
