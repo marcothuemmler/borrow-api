@@ -87,4 +87,8 @@ export class UserService extends TypeOrmCrudService<User> {
     );
     return userDto;
   }
+
+  async deleteUserImage(id: string) {
+    await this.storageService.removeObject(`user/${id}/cover`);
+  }
 }

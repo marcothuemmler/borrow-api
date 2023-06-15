@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Put,
@@ -115,6 +116,11 @@ export class UserController implements CrudController<User> {
     @UploadedFile() file: Express.Multer.File,
   ) {
     await this.service.putUserImage(request, file);
+  }
+
+  @Delete('cover/:id')
+  async deleteUserImage(@Param('id') id: string) {
+    return await this.service.deleteUserImage(id);
   }
 
   @Override()

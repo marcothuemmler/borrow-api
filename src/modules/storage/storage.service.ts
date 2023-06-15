@@ -40,4 +40,11 @@ export class StorageService {
       { 'content-type': file.mimetype },
     );
   }
+
+  async removeObject(objectName: string) {
+    return this.minioService.client.removeObject(
+      process.env.MINIO_BUCKET_NAME,
+      objectName,
+    );
+  }
 }
