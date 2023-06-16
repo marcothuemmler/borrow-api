@@ -1,4 +1,4 @@
-import { Body, Controller, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Param, UseInterceptors } from '@nestjs/common';
 import { ItemService } from './item.service';
 import { Item } from './item.entity';
 import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
@@ -61,11 +61,11 @@ export class ItemController implements CrudController<Item> {
   @Override()
   @ApiResponse({ type: GetItemDto })
   @UseInterceptors(MapInterceptor(Item, GetItemDto))
-  updateOne(
-    @ParsedRequest() query: CrudRequest,
+  async updateOne(
+    @Param('id') id: string,
     @Body() item: UpdateItemDto,
   ): Promise<GetItemDto> {
-    return this.service.updateOne(query, item);
+    return await this.service.patchOne(id, item);
   }
 
   @Override()

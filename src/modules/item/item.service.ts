@@ -9,6 +9,7 @@ import { User } from '../user/user.entity';
 import { InjectMapper } from '@automapper/nestjs';
 import { Mapper } from '@automapper/core';
 import { TypeOrmCrudService } from '@nestjsx/crud-typeorm';
+import { UpdateItemDto } from './dto/updateItem.dto';
 
 @Injectable()
 export class ItemService extends TypeOrmCrudService<Item> {
@@ -40,5 +41,14 @@ export class ItemService extends TypeOrmCrudService<Item> {
     });
     await this.itemRepository.save(newItem);
     return this.itemRepository.findOneOrFail({ where: { id: newItem.id } });
+  }
+
+  async patchOne(id: string, itemDto: UpdateItemDto) {
+    const item = await this.itemRepository.findOneByOrFail({ id });
+    const newItem = { ...item, ...itemDto };
+    newItem.category = this.categoryRepository.create({
+      id: itemDto.categoryId,
+    });
+    return await this.itemRepository.save(newItem);
   }
 }
