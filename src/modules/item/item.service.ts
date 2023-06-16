@@ -12,6 +12,7 @@ import { TypeOrmCrudService } from '@nestjsx/crud-typeorm';
 import { CrudRequest } from '@nestjsx/crud';
 import { GetItemDto } from './dto/getItem.dto';
 import { StorageService } from '../storage/storage.service';
+import { UpdateItemDto } from './dto/updateItem.dto';
 
 @Injectable()
 export class ItemService extends TypeOrmCrudService<Item> {
@@ -44,6 +45,15 @@ export class ItemService extends TypeOrmCrudService<Item> {
     });
     await this.itemRepository.save(newItem);
     return this.itemRepository.findOneOrFail({ where: { id: newItem.id } });
+  }
+
+  async patchOne(id: string, itemDto: UpdateItemDto) {
+    const item = await this.itemRepository.findOneByOrFail({ id });
+    const newItem = { ...item, ...itemDto };
+    newItem.category = this.categoryRepository.create({
+      id: itemDto.categoryId,
+    });
+    return await this.itemRepository.save(newItem);
   }
 
   async getOneWithOwnerAvatar(req: CrudRequest): Promise<GetItemDto> {
