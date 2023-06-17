@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './user.entity';
@@ -58,11 +62,15 @@ export class UserService extends TypeOrmCrudService<User> {
     return this.userRepository.findOneOrFail({ where: { id } });
   }
 
-  async delete(id: string) {
+  async delete(id: string, password: string) {
     const user = await this.userRepository.findOneOrFail({
       where: { id },
       relations: ['groups', 'groups.members'],
     });
+    const passwordMatches = await argon2.verify(user.hash, password);
+    if (!passwordMatches) {
+      throw new UnauthorizedException();
+    }
     for (const group of user.groups) {
       if (group.members.length === 1) {
         await this.groupRepository.remove(group);

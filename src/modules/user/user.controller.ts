@@ -6,6 +6,7 @@ import {
   Param,
   Put,
   UploadedFile,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import {
@@ -31,6 +32,7 @@ import {
   ParsedRequest,
 } from '@nestjsx/crud';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { UserIsUserGuard } from '../../common/guards/user-is-user.guard';
 
 @Crud({
   model: { type: User },
@@ -124,7 +126,11 @@ export class UserController implements CrudController<User> {
   }
 
   @Override()
-  async deleteOne(@Param('id') id: string) {
-    return this.service.delete(id);
+  @UseGuards(UserIsUserGuard)
+  async deleteOne(
+    @Param('id') id: string,
+    @Body() credentials: { password: string },
+  ) {
+    return this.service.delete(id, credentials.password);
   }
 }
