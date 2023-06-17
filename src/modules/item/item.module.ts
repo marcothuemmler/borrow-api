@@ -7,9 +7,13 @@ import { Group } from '../group/group.entity';
 import { Category } from '../category/category.entity';
 import { User } from '../user/user.entity';
 import { ItemProfile } from './profile/item.profile';
+import { StorageModule } from '../storage/storage.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Item, Group, Category, User])],
+  imports: [
+    TypeOrmModule.forFeature([Item, Group, Category, User]),
+    StorageModule,
+  ],
   controllers: [ItemController],
   providers: [ItemService, ItemProfile],
 })

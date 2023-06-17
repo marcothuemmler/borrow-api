@@ -37,8 +37,15 @@ export class Group {
   imageUrl: string;
 
   @AutoMap(() => [User])
-  @ManyToMany(() => User, (user) => user.groups)
-  @JoinTable({ name: 'group_members' })
+  @ManyToMany(() => User, (user) => user.groups, {
+    onDelete: 'CASCADE',
+    cascade: true,
+  })
+  @JoinTable({
+    name: 'group_members',
+    joinColumns: [{ name: 'groupId' }],
+    inverseJoinColumns: [{ name: 'userId' }],
+  })
   members: User[];
 
   @AutoMap(() => [Category])

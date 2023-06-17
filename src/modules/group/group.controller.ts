@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Param,
   Put,
   UploadedFile,
@@ -132,5 +133,10 @@ export class GroupController implements CrudController<Group> {
   @Put(':id/members/:userId')
   async addMember(@Param('id') id: string, @Param('userId') userId: string) {
     await this.service.addMember(id, userId);
+  }
+
+  @Delete(':id/members/:userId')
+  async removeMember(@Param('id') id: string, @Param('userId') userId: string) {
+    await this.service.removeMember(id, userId);
   }
 }

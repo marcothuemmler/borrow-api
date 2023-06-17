@@ -15,6 +15,10 @@ export class GetUserDto {
   @ApiProperty({ type: String, example: 'username' })
   username: string;
 
+  @AutoMap()
+  @ApiProperty({ type: String, example: 'user@example.com' })
+  email: string;
+
   @AutoMap(() => [GetGroupDto])
   @ApiProperty({ type: () => GetGroupDto, isArray: true })
   groups: GetGroupDto[];
@@ -22,4 +26,7 @@ export class GetUserDto {
   @AutoMap(() => [GetItemDto])
   @ApiProperty({ type: () => GetItemDto, isArray: true })
   items: GetItemDto[];
+
+  @AutoMap()
+  imageUrl: string | undefined;
 }

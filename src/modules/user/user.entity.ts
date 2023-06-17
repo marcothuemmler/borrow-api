@@ -6,6 +6,7 @@ import {
   OneToMany,
   CreateDateColumn,
   UpdateDateColumn,
+  JoinTable,
 } from 'typeorm';
 import { Group } from '../group/group.entity';
 import { Item } from '../item/item.entity';
@@ -27,6 +28,7 @@ export class User {
   @Column({ type: String })
   username: string;
 
+  @AutoMap()
   @Column({ type: String, unique: true })
   email: string;
 
@@ -37,8 +39,16 @@ export class User {
   hashedRefreshToken: string | null;
 
   @AutoMap(() => [Group])
-  @ManyToMany(() => Group, (group) => group.members)
+  @ManyToMany(() => Group, (group) => group.members, { onDelete: 'CASCADE' })
+  @JoinTable({
+    name: 'group_members',
+    joinColumns: [{ name: 'userId' }],
+    inverseJoinColumns: [{ name: 'groupId' }],
+  })
   groups: Group[];
+
+  @AutoMap()
+  imageUrl: string;
 
   @AutoMap(() => [Item])
   @OneToMany(() => Item, (item) => item.owner)
