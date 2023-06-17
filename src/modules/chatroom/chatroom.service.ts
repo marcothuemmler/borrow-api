@@ -6,6 +6,7 @@ import { Message } from '../message/message.entity';
 import { InjectMapper } from '@automapper/nestjs';
 import { Mapper } from '@automapper/core';
 import { GetChatroomDto } from './dto/get-chatroom.dto';
+import { StorageService } from '../storage/storage.service';
 
 @Injectable()
 export class ChatroomService {
@@ -16,6 +17,7 @@ export class ChatroomService {
     private readonly messageRepository: Repository<Message>,
     @InjectMapper()
     private readonly classMapper: Mapper,
+    private readonly storageService: StorageService,
   ) {}
 
   async findChatRooms(id: string) {
@@ -30,6 +32,18 @@ export class ChatroomService {
         take: 1,
       });
     }
-    return this.classMapper.mapArray(chatRooms, ChatRoom, GetChatroomDto);
+    const chatRoomDto = this.classMapper.mapArray(
+      chatRooms,
+      ChatRoom,
+      GetChatroomDto,
+    );
+    for (const chatRoom of chatRoomDto) {
+      const message = chatRoom.messages[0];
+      message.sender.imageUrl =
+        await this.storageService.getPresignedUrlIfExists(
+          `user/${message.sender.id}/cover`,
+        );
+    }
+    return chatRoomDto;
   }
 }

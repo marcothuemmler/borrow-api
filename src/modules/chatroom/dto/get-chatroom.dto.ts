@@ -5,6 +5,6 @@ export class GetChatroomDto {
   @AutoMap()
   id: string;
 
-  @AutoMap()
-  messages: GetMessageDto;
+  @AutoMap(() => [GetMessageDto])
+  messages: GetMessageDto[];
 }
