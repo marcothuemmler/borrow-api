@@ -46,14 +46,17 @@ export class GroupService extends TypeOrmCrudService<Group> {
       where: { id },
       relations: ['members', 'invitations'],
     });
-    const user = await this.userRepository.findOneByOrFail({
-      id: Equal(userId),
+    const user = await this.userRepository.findOneOrFail({
+      where: { id: Equal(userId) },
+      relations: ['invitations'],
     });
     if (group.members.includes(user)) return;
     group.invitations = group.invitations.filter(
       (invitedUser) => invitedUser.id != user.id,
     );
+    user.invitations.filter((invitation) => invitation.id != id);
     group.members.push(user);
+    await this.userRepository.save(user);
     await this.groupRepository.save(group);
   }
 
