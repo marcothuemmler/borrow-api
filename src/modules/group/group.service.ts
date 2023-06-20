@@ -9,6 +9,7 @@ import { Mapper } from '@automapper/core';
 import { TypeOrmCrudService } from '@nestjsx/crud-typeorm';
 import { StorageService } from '../storage/storage.service';
 import { CrudRequest } from '@nestjsx/crud';
+import { InviteMembersDto } from './dto/invite-members.dto';
 
 @Injectable()
 export class GroupService extends TypeOrmCrudService<Group> {
@@ -44,13 +45,19 @@ export class GroupService extends TypeOrmCrudService<Group> {
   async addMember(id: string, userId: string) {
     const group = await this.groupRepository.findOneOrFail({
       where: { id },
-      relations: ['members'],
+      relations: ['members', 'invitations'],
     });
-    const user = await this.userRepository.findOneByOrFail({
-      id: Equal(userId),
+    const user = await this.userRepository.findOneOrFail({
+      where: { id: Equal(userId) },
+      relations: ['invitations'],
     });
     if (group.members.includes(user)) return;
+    group.invitations = group.invitations.filter(
+      (invitedUser) => invitedUser.id != user.id,
+    );
+    user.invitations.filter((invitation) => invitation.id != id);
     group.members.push(user);
+    await this.userRepository.save(user);
     await this.groupRepository.save(group);
   }
 
@@ -65,5 +72,51 @@ export class GroupService extends TypeOrmCrudService<Group> {
     } else {
       await this.groupRepository.save(group);
     }
+  }
+
+  async addInvitation(id: string, userId: string) {
+    const group = await this.groupRepository.findOneOrFail({
+      where: { id },
+      relations: ['invitations'],
+    });
+    const user = await this.userRepository.findOneByOrFail({
+      id: Equal(userId),
+    });
+    if (group.invitations.includes(user)) return;
+    group.invitations.push(user);
+    await this.groupRepository.save(group);
+  }
+
+  async removeInvitation(id: string, userId: string) {
+    const group = await this.groupRepository.findOneOrFail({
+      where: { id },
+      relations: ['invitations'],
+    });
+    const user = await this.userRepository.findOneOrFail({
+      where: { id: Equal(userId) },
+      relations: ['invitations'],
+    });
+    user.invitations.filter((invitation) => invitation.id != id);
+    group.invitations = group.invitations.filter(
+      (invitation) => invitation.id != user.id,
+    );
+    await this.userRepository.save(user);
+    await this.groupRepository.save(group);
+  }
+
+  async addInvitations(id: string, invitationDto: InviteMembersDto) {
+    const group = await this.groupRepository.findOneOrFail({
+      where: { id },
+      relations: ['invitations'],
+    });
+    for (const email of invitationDto.emails) {
+      try {
+        const user = await this.userRepository.findOneOrFail({
+          where: { email },
+        });
+        group.invitations.push(user);
+      } catch (error) {}
+    }
+    await this.groupRepository.save(group);
   }
 }

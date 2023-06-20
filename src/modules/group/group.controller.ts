@@ -31,6 +31,7 @@ import {
   Override,
   ParsedRequest,
 } from '@nestjsx/crud';
+import { InviteMembersDto } from './dto/invite-members.dto';
 
 @Crud({
   model: {
@@ -135,8 +136,24 @@ export class GroupController implements CrudController<Group> {
     await this.service.addMember(id, userId);
   }
 
+  @Put(':id/invitations')
+  async addInvitations(
+    @Param('id') id: string,
+    @Body() invitations: InviteMembersDto,
+  ) {
+    await this.service.addInvitations(id, invitations);
+  }
+
   @Delete(':id/members/:userId')
   async removeMember(@Param('id') id: string, @Param('userId') userId: string) {
     await this.service.removeMember(id, userId);
+  }
+
+  @Delete(':id/invitations/:userId')
+  async removeInvitation(
+    @Param('id') id: string,
+    @Param('userId') userId: string,
+  ) {
+    await this.service.removeInvitation(id, userId);
   }
 }
