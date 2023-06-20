@@ -73,6 +73,7 @@ export class UserController implements CrudController<User> {
   }
 
   @Get('/with-groups/:id')
+  @ApiParam({ name: 'id', type: 'string' })
   @UseInterceptors(CrudRequestInterceptor)
   async getOneWithGroupsAndGroupImages(
     @ParsedRequest() request: CrudRequest,
