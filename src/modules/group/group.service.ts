@@ -9,6 +9,7 @@ import { Mapper } from '@automapper/core';
 import { TypeOrmCrudService } from '@nestjsx/crud-typeorm';
 import { StorageService } from '../storage/storage.service';
 import { CrudRequest } from '@nestjsx/crud';
+import { InviteMembersDto } from './dto/invite-members.dto';
 
 @Injectable()
 export class GroupService extends TypeOrmCrudService<Group> {
@@ -100,6 +101,22 @@ export class GroupService extends TypeOrmCrudService<Group> {
       (invitation) => invitation.id != user.id,
     );
     await this.userRepository.save(user);
+    await this.groupRepository.save(group);
+  }
+
+  async addInvitations(id: string, invitationDto: InviteMembersDto) {
+    const group = await this.groupRepository.findOneOrFail({
+      where: { id },
+      relations: ['invitations'],
+    });
+    for (const email of invitationDto.emails) {
+      try {
+        const user = await this.userRepository.findOneOrFail({
+          where: { email },
+        });
+        group.invitations.push(user);
+      } catch (error) {}
+    }
     await this.groupRepository.save(group);
   }
 }
