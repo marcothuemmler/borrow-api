@@ -47,6 +47,17 @@ export class User {
   })
   groups: Group[];
 
+  @AutoMap(() => [Group])
+  @ManyToMany(() => Group, (group) => group.invitations, {
+    onDelete: 'CASCADE',
+  })
+  @JoinTable({
+    name: 'group_invitations',
+    joinColumns: [{ name: 'userId' }],
+    inverseJoinColumns: [{ name: 'groupId' }],
+  })
+  invitations: Group[];
+
   @AutoMap()
   imageUrl: string;
 

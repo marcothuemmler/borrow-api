@@ -54,6 +54,9 @@ import { UserIsUserGuard } from '../../common/guards/user-is-user.guard';
       items: {
         eager: false,
       },
+      invitations: {
+        eager: false,
+      },
     },
   },
 })
@@ -132,5 +135,11 @@ export class UserController implements CrudController<User> {
     @Body() credentials: { password: string },
   ) {
     return this.service.delete(id, credentials.password);
+  }
+
+  @Get(':id/invitations')
+  @UseGuards(UserIsUserGuard)
+  async getUserInvitations(@Param('id') id: string) {
+    return await this.service.findInvitations(id);
   }
 }

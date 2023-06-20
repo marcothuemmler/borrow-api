@@ -99,4 +99,12 @@ export class UserService extends TypeOrmCrudService<User> {
   async deleteUserImage(id: string) {
     await this.storageService.removeObject(`user/${id}/cover`);
   }
+
+  async findInvitations(id: string) {
+    const user = await this.userRepository.findOne({
+      where: { id },
+      relations: ['invitations'],
+    });
+    return user?.invitations;
+  }
 }

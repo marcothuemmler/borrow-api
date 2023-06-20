@@ -44,13 +44,18 @@ export class GroupService extends TypeOrmCrudService<Group> {
   async addMember(id: string, userId: string) {
     const group = await this.groupRepository.findOneOrFail({
       where: { id },
-      relations: ['members'],
+      relations: ['members', 'invitations'],
     });
     const user = await this.userRepository.findOneByOrFail({
       id: Equal(userId),
     });
     if (group.members.includes(user)) return;
     group.members.push(user);
+    if (group.invitations.includes(user)) {
+      group.invitations = group.invitations.filter(
+        (invitedUser) => invitedUser.id != user.id,
+      );
+    }
     await this.groupRepository.save(group);
   }
 
@@ -65,5 +70,18 @@ export class GroupService extends TypeOrmCrudService<Group> {
     } else {
       await this.groupRepository.save(group);
     }
+  }
+
+  async addInvitation(id: string, userId: string) {
+    const group = await this.groupRepository.findOneOrFail({
+      where: { id },
+      relations: ['invitations'],
+    });
+    const user = await this.userRepository.findOneByOrFail({
+      id: Equal(userId),
+    });
+    if (group.invitations.includes(user)) return;
+    group.invitations.push(user);
+    await this.groupRepository.save(group);
   }
 }

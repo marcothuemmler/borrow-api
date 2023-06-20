@@ -48,6 +48,18 @@ export class Group {
   })
   members: User[];
 
+  @AutoMap(() => [User])
+  @ManyToMany(() => User, (user) => user.invitations, {
+    onDelete: 'CASCADE',
+    cascade: true,
+  })
+  @JoinTable({
+    name: 'group_invitations',
+    joinColumns: [{ name: 'groupId' }],
+    inverseJoinColumns: [{ name: 'userId' }],
+  })
+  invitations: User[];
+
   @AutoMap(() => [Category])
   @OneToMany(() => Category, (category) => category.group)
   categories: Category[];

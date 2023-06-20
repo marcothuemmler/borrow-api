@@ -135,6 +135,14 @@ export class GroupController implements CrudController<Group> {
     await this.service.addMember(id, userId);
   }
 
+  @Put(':id/invitations/:userId')
+  async addInvitation(
+    @Param('id') id: string,
+    @Param('userId') userId: string,
+  ) {
+    await this.service.addInvitation(id, userId);
+  }
+
   @Delete(':id/members/:userId')
   async removeMember(@Param('id') id: string, @Param('userId') userId: string) {
     await this.service.removeMember(id, userId);
