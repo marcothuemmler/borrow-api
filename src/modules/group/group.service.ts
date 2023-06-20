@@ -50,12 +50,10 @@ export class GroupService extends TypeOrmCrudService<Group> {
       id: Equal(userId),
     });
     if (group.members.includes(user)) return;
+    group.invitations = group.invitations.filter(
+      (invitedUser) => invitedUser.id != user.id,
+    );
     group.members.push(user);
-    if (group.invitations.includes(user)) {
-      group.invitations = group.invitations.filter(
-        (invitedUser) => invitedUser.id != user.id,
-      );
-    }
     await this.groupRepository.save(group);
   }
 
