@@ -18,7 +18,7 @@ import {
 } from '@nestjs/swagger';
 import { CreateItemDto } from './dto/createItem.dto';
 import { GetItemDto } from './dto/getItem.dto';
-import { MapInterceptor } from '@automapper/nestjs';
+import { InjectMapper, MapInterceptor } from '@automapper/nestjs';
 import {
   Crud,
   CrudController,
@@ -30,6 +30,8 @@ import {
 } from '@nestjsx/crud';
 import { UpdateItemDto } from './dto/updateItem.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { Mapper } from '@automapper/core';
+import { StorageService } from '../storage/storage.service';
 
 @Crud({
   model: { type: Item },
@@ -58,7 +60,12 @@ import { FileInterceptor } from '@nestjs/platform-express';
 @ApiTags('Items')
 @ApiBearerAuth()
 export class ItemController implements CrudController<Item> {
-  constructor(public service: ItemService) {}
+  constructor(
+    public service: ItemService,
+    @InjectMapper()
+    private readonly classMapper: Mapper,
+    private readonly storageService: StorageService,
+  ) {}
 
   @Override()
   @ApiResponse({ type: GetItemDto })
@@ -70,7 +77,7 @@ export class ItemController implements CrudController<Item> {
   @Override()
   @ApiResponse({ type: GetItemDto })
   getOne(@ParsedRequest() query: CrudRequest): Promise<GetItemDto> {
-    return this.service.getOneWithOwnerAvatar(query);
+    return this.service.getOneWithImageAndOwnerAvatar(query);
   }
 
   @Override()
@@ -85,11 +92,18 @@ export class ItemController implements CrudController<Item> {
 
   @Override()
   @ApiResponse({ type: GetItemDto, isArray: true })
-  @UseInterceptors(MapInterceptor(Item, GetItemDto, { isArray: true }))
   async getMany(
     @ParsedRequest() query: CrudRequest,
   ): Promise<GetManyDefaultResponse<GetItemDto> | GetItemDto[]> {
-    return this.service.getMany(query);
+    const items = await this.service.getMany(query);
+    const data = Array.isArray(items) ? items : items.data;
+    const itemDtos = this.classMapper.mapArray(data, Item, GetItemDto);
+    for (const item of itemDtos) {
+      item.imageUrl = await this.storageService.getPresignedUrlIfExists(
+        `item/${item.id}/cover`,
+      );
+    }
+    return itemDtos;
   }
 
   @UseInterceptors(FileInterceptor('file'), CrudRequestInterceptor)
@@ -109,7 +123,7 @@ export class ItemController implements CrudController<Item> {
       },
     },
   })
-  async putGroupImage(
+  async putItemImage(
     @ParsedRequest() request: CrudRequest,
     @UploadedFile() file: Express.Multer.File,
   ) {

@@ -55,17 +55,17 @@ export class ItemService extends TypeOrmCrudService<Item> {
         id: itemDto.categoryId,
       });
     }
-    if (!(itemDto instanceof UpdateItemDto)) {
-      newItem.isActive = itemDto.isActive ?? newItem.isActive;
-    }
     return await this.itemRepository.save(newItem);
   }
 
-  async getOneWithOwnerAvatar(req: CrudRequest): Promise<GetItemDto> {
+  async getOneWithImageAndOwnerAvatar(req: CrudRequest): Promise<GetItemDto> {
     const item = await super.getOne(req);
     const dto = this.classMapper.map(item, Item, GetItemDto);
     dto.owner.imageUrl = await this.storageService.getPresignedUrlIfExists(
       `user/${item.owner.id}/cover`,
+    );
+    dto.imageUrl = await this.storageService.getPresignedUrlIfExists(
+      `item/${item.id}/cover`,
     );
     return dto;
   }
