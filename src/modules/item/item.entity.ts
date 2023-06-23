@@ -23,6 +23,9 @@ export class Item {
   @UpdateDateColumn()
   updated_at: Date;
 
+  @Column({ default: true })
+  isActive: boolean;
+
   @AutoMap()
   @Column()
   name: string;

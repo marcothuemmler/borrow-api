@@ -119,4 +119,10 @@ export class GroupService extends TypeOrmCrudService<Group> {
     }
     await this.groupRepository.save(group);
   }
+
+  override async getOne(query: CrudRequest) {
+    const group = await super.getOneOrFail(query);
+    group.items = group.items && group.items.filter((item) => item.isActive);
+    return group;
+  }
 }
