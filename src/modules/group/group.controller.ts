@@ -76,9 +76,8 @@ export class GroupController implements CrudController<Group> {
 
   @Override()
   @ApiResponse({ type: GetGroupDto })
-  @UseInterceptors(MapInterceptor(Group, GetGroupDto))
-  async getOne(@ParsedRequest() query: CrudRequest): Promise<GetGroupDto> {
-    return this.service.getOne(query);
+  async getOne(@ParsedRequest() request: CrudRequest): Promise<GetGroupDto> {
+    return this.service.getOneByRequest(request);
   }
 
   @Override()

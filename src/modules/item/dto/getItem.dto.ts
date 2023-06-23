@@ -31,4 +31,11 @@ export class GetItemDto {
   @AutoMap(() => GetUserDto)
   @ApiPropertyOptional({ type: () => GetUserDto })
   owner: GetUserDto;
+
+  @AutoMap()
+  @ApiProperty()
+  isActive: boolean;
+
+  @ApiPropertyOptional({ type: String })
+  imageUrl?: string;
 }

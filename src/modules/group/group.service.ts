@@ -10,6 +10,7 @@ import { TypeOrmCrudService } from '@nestjsx/crud-typeorm';
 import { StorageService } from '../storage/storage.service';
 import { CrudRequest } from '@nestjsx/crud';
 import { InviteMembersDto } from './dto/invite-members.dto';
+import { GetGroupDto } from './dto/getGroup.dto';
 
 @Injectable()
 export class GroupService extends TypeOrmCrudService<Group> {
@@ -120,9 +121,15 @@ export class GroupService extends TypeOrmCrudService<Group> {
     await this.groupRepository.save(group);
   }
 
-  override async getOne(query: CrudRequest) {
+  async getOneByRequest(query: CrudRequest) {
     const group = await super.getOneOrFail(query);
     group.items = group.items && group.items.filter((item) => item.isActive);
-    return group;
+    const dto = this.classMapper.map(group, Group, GetGroupDto);
+    for (const item of dto.items || []) {
+      item.imageUrl = await this.storageService.getPresignedUrlIfExists(
+        `item/${item.id}/cover`,
+      );
+    }
+    return dto;
   }
 }

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Equal, Repository } from 'typeorm';
 import { Item } from './item.entity';
@@ -47,12 +47,17 @@ export class ItemService extends TypeOrmCrudService<Item> {
     return this.itemRepository.findOneOrFail({ where: { id: newItem.id } });
   }
 
-  async patchOne(id: string, itemDto: UpdateItemDto) {
+  async patchOne(id: string, itemDto: UpdateItemDto | Partial<Item>) {
     const item = await this.itemRepository.findOneByOrFail({ id });
     const newItem = { ...item, ...itemDto };
-    newItem.category = this.categoryRepository.create({
-      id: itemDto.categoryId,
-    });
+    if (itemDto instanceof UpdateItemDto) {
+      newItem.category = this.categoryRepository.create({
+        id: itemDto.categoryId,
+      });
+    }
+    if (!(itemDto instanceof UpdateItemDto)) {
+      newItem.isActive = itemDto.isActive ?? newItem.isActive;
+    }
     return await this.itemRepository.save(newItem);
   }
 
@@ -63,5 +68,13 @@ export class ItemService extends TypeOrmCrudService<Item> {
       `user/${item.owner.id}/cover`,
     );
     return dto;
+  }
+
+  async putItemImage(request: CrudRequest, file: Express.Multer.File) {
+    const item = await this.getOne(request);
+    if (!item) {
+      throw new NotFoundException('Item does not exist!');
+    }
+    return await this.storageService.putObject(`item/${item.id}/cover`, file);
   }
 }
