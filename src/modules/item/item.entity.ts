@@ -23,6 +23,7 @@ export class Item {
   @UpdateDateColumn()
   updated_at: Date;
 
+  @AutoMap()
   @Column({ default: true })
   isActive: boolean;
 
@@ -45,4 +46,7 @@ export class Item {
   @AutoMap(() => User)
   @ManyToOne(() => User, (owner) => owner.items, { onDelete: 'CASCADE' })
   owner: User;
+
+  @AutoMap()
+  imageUrl: string;
 }

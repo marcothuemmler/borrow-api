@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Equal, Repository } from 'typeorm';
 import { Item } from './item.entity';
@@ -47,21 +47,34 @@ export class ItemService extends TypeOrmCrudService<Item> {
     return this.itemRepository.findOneOrFail({ where: { id: newItem.id } });
   }
 
-  async patchOne(id: string, itemDto: UpdateItemDto) {
+  async patchOne(id: string, itemDto: UpdateItemDto | Partial<Item>) {
     const item = await this.itemRepository.findOneByOrFail({ id });
     const newItem = { ...item, ...itemDto };
-    newItem.category = this.categoryRepository.create({
-      id: itemDto.categoryId,
-    });
+    if (itemDto instanceof UpdateItemDto) {
+      newItem.category = this.categoryRepository.create({
+        id: itemDto.categoryId,
+      });
+    }
     return await this.itemRepository.save(newItem);
   }
 
-  async getOneWithOwnerAvatar(req: CrudRequest): Promise<GetItemDto> {
+  async getOneWithImageAndOwnerAvatar(req: CrudRequest): Promise<GetItemDto> {
     const item = await super.getOne(req);
     const dto = this.classMapper.map(item, Item, GetItemDto);
     dto.owner.imageUrl = await this.storageService.getPresignedUrlIfExists(
       `user/${item.owner.id}/cover`,
     );
+    dto.imageUrl = await this.storageService.getPresignedUrlIfExists(
+      `item/${item.id}/cover`,
+    );
     return dto;
+  }
+
+  async putItemImage(request: CrudRequest, file: Express.Multer.File) {
+    const item = await this.getOne(request);
+    if (!item) {
+      throw new NotFoundException('Item does not exist!');
+    }
+    return await this.storageService.putObject(`item/${item.id}/cover`, file);
   }
 }
