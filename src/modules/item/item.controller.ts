@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Param,
   Put,
   UploadedFile,
@@ -128,5 +129,10 @@ export class ItemController implements CrudController<Item> {
     @UploadedFile() file: Express.Multer.File,
   ) {
     await this.service.putItemImage(request, file);
+  }
+
+  @Delete('cover/:id')
+  async deleteItemImage(@Param('id') id: string) {
+    return await this.service.deleteItemImage(id);
   }
 }

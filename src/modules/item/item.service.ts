@@ -77,4 +77,8 @@ export class ItemService extends TypeOrmCrudService<Item> {
     }
     return await this.storageService.putObject(`item/${item.id}/cover`, file);
   }
+
+  async deleteItemImage(id: string) {
+    await this.storageService.removeObject(`item/${id}/cover`);
+  }
 }
