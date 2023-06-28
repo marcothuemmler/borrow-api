@@ -123,7 +123,6 @@ export class GroupService extends TypeOrmCrudService<Group> {
 
   async getOneByRequest(query: CrudRequest) {
     const group = await super.getOneOrFail(query);
-    group.items = group.items && group.items.filter((item) => item.isActive);
     const dto = this.classMapper.map(group, Group, GetGroupDto);
     for (const item of dto.items || []) {
       item.imageUrl = await this.storageService.getPresignedUrlIfExists(
